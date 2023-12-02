@@ -20,9 +20,12 @@ strip = true
 
 [dependencies]
 flexi_logger = "0.27.3"
+lazy_static = "1.4.0"
 log = "0.4.17"
 nom = "7.1.1"
 rand = "0.8.5"
+recap = "0.1.2"
 regex = "1.10.2"
 seq-macro = "0.3.5"
+serde = "1.0.193"
 thiserror = "1.0.38"

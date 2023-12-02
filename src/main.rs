@@ -1,4 +1,4 @@
-use aoc2023::{enable_logging, get_day_parts, AocError, DayPartFn};
+use aoc2023::{enable_logging, get_day_parts, AocError, DayPartFn, DailyInput, InputType};
 use regex::Regex;
 use std::{collections::BTreeSet, env};
 
@@ -13,17 +13,16 @@ fn main() -> Result<(), AocError> {
         function,
     } in find_parts_to_run(&day_parts)
     {
-        // println!(
-        //     "[Day {} Part {}]: {}",
-        //     day,
-        //     part,
-        //     function(DailyInput {
-        //         day: *day,
-        //         input_type: InputType::Challenge
-        //     })?
-        // );
-
-        println!("[Day {} Part {}]", day, part,);
+        println!(
+            "[Day {} Part {}]: {}",
+            day,
+            part,
+            function(DailyInput {
+                day: *day,
+                part: None,
+                input_type: InputType::Challenge
+            })?
+        );
     }
 
     Ok(())
@@ -45,10 +44,8 @@ fn find_parts_to_run(day_parts: &[DayPartFn]) -> Vec<&DayPartFn> {
             .iter()
             .enumerate()
             .flat_map(|(i, arg)| {
-                println!("arg {},m {:#?}", arg, re.captures(arg));
                 match re.captures(arg) {
                     Some(c) => {
-                        println!("c.len {}", c.len());
                         let day = c.get(1).unwrap().as_str().parse::<usize>().unwrap();
                         if let Some(part) = c.get(3) {
                             vec![(day, part.as_str().parse::<usize>().unwrap())]

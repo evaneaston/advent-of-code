@@ -1,16 +1,16 @@
 mod grid;
 seq!(N in 1..=9 {
-    mod day0~N;
- });
- seq!(N in 10..=25 {
-    mod day~N;
- });
- 
-use seq_macro::seq;
+   mod day0~N;
+});
+seq!(N in 10..=25 {
+   mod day~N;
+});
+
 use flexi_logger::Logger;
 use nom::{
     bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult,
 };
+use seq_macro::seq;
 use std::{
     fs::File,
     io::{BufRead, BufReader, Error, Read},
@@ -49,16 +49,20 @@ pub fn get_day_parts() -> Vec<DayPartFn> {
 
 pub type PartFn = fn(DailyInput) -> Result<String, AocError>;
 
-
 pub struct DayPartFn {
     pub day: usize,
     pub part: usize,
-    pub function: PartFn
+    pub function: PartFn,
 }
 impl DayPartFn {
-    pub fn new(day: usize, part: usize, function: PartFn) -> Self { Self { day, part, function }}
+    pub fn new(day: usize, part: usize, function: PartFn) -> Self {
+        Self {
+            day,
+            part,
+            function,
+        }
+    }
 }
-
 
 #[derive(Error, Debug)]
 pub enum AocError {
@@ -81,33 +85,37 @@ pub enum AocError {
     // OutOfRange(String),
 }
 
-pub enum InputType {    
+pub enum InputType {
     #[allow(dead_code)]
     Example,
     Challenge,
 }
 pub struct DailyInput {
     pub day: usize,
-    pub input_type: InputType
+    pub part: Option<usize>,
+    pub input_type: InputType,
 }
 impl DailyInput {
     fn get_input_file(&self) -> Result<File, Error> {
         let day = format!("day{:02}", self.day);
-        self.open_input_file(&match self.input_type {
-            InputType::Example => format!("src/{day}/challenge/{day}-example-input.txt"),
-            InputType::Challenge => format!("src/{day}/challenge/{day}-challenge-input.txt"),
-        })
+        let qualifier = match self.input_type {
+            InputType::Example => "example",
+            InputType::Challenge => "challenge",
+        };
+        let file_name = match self.part {
+            Some(part) => format!("src/{day}/challenge/{day}-part{part}-{qualifier}-input.txt"),
+            None => format!("src/{day}/challenge/{day}-{qualifier}-input.txt"),
+        };
+        self.open_input_file(&file_name)
     }
 
     fn open_input_file(&self, file_name: &str) -> Result<File, Error> {
         match File::open(file_name) {
             Ok(f) => Ok(f),
-            Err(e) => {
-                Err(Error::new(
-                    std::io::ErrorKind::NotFound,
-                    format!("Unable to find file {}: {:?}", &file_name, e),
-                ))
-            }
+            Err(e) => Err(Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Unable to find file {}: {:?}", &file_name, e),
+            )),
         }
     }
 
@@ -191,7 +199,6 @@ pub fn enable_logging() -> Result<(), AocError> {
 mod tests {
     use crate::RowCol;
 
-
     #[test]
     fn row_col_conversions_test() {
         let rc = RowCol(1, 2);
@@ -203,5 +210,3 @@ mod tests {
         assert_eq!(new_rc, rc);
     }
 }
-
-
