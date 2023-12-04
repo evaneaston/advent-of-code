@@ -8,24 +8,11 @@ lazy_static! {
 }
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let lines = input.get_input_lines()?;
-    let num_locations = lines
-        .iter()
-        .enumerate()
-        .flat_map(|(row, line)| {
-            //println!("{line}");
-            RE.find_iter(line).map(move |m| {
-                (
-                    RowCol(row as i64, m.start() as i64),
-                    RowCol(row as i64, (m.end() - 1) as i64),
-                    m.as_str().parse::<u32>().unwrap(),
-                )
-            })
-        })
-        .collect::<Vec<_>>();
+    let number_locations = get_number_locations(&lines);
     let grid = Grid::new(&lines);
 
     let mut sum: u32 = 0;
-    for (start, end, value) in num_locations {
+    for (start, end, number) in number_locations {
         let mut surrounding: Vec<RowCol> = Vec::new();
 
         let start_col = if start.col() > grid.min_col() {
@@ -48,18 +35,36 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         if start.row() < grid.max_row() {
             surrounding.extend((start_col..=end_col).map(|col| RowCol(start.row() + 1, col)));
         }
-        //println!(" {start} {end} {value}: {:?}", surrounding);
 
-        if surrounding
+        let is_part_number = surrounding
             .iter()
             .flat_map(|rc| grid.get(*rc))
-            .any(|c| c != b'.' && !c.is_ascii_digit())
-        {
-            sum += value;
+            .any(|c| c != b'.' && !c.is_ascii_digit());
+        
+        if is_part_number {
+            sum += number;
         }
     }
 
     Ok(sum.to_string())
+}
+
+fn get_number_locations(lines: &[String]) -> Vec<(RowCol, RowCol, u32)> {
+    let num_locations = lines
+        .iter()
+        .enumerate()
+        .flat_map(|(row, line)| {
+            //println!("{line}");
+            RE.find_iter(line).map(move |m| {
+                (
+                    RowCol(row as i64, m.start() as i64),
+                    RowCol(row as i64, (m.end() - 1) as i64),
+                    m.as_str().parse::<u32>().unwrap(),
+                )
+            })
+        })
+        .collect::<Vec<_>>();
+    num_locations
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
