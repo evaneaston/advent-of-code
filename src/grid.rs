@@ -217,9 +217,25 @@ impl Grid {
     pub fn min(&self) -> RowCol {
         self.min
     }
+    
+    pub fn min_row(&self) -> i64 {
+        self.min.row()
+    }
+
+    pub fn min_col(&self) -> i64 {
+        self.min.col()
+    }
 
     pub fn max(&self) -> RowCol {
         self.max
+    }
+
+    pub fn max_row(&self) -> i64 {
+        self.max.col()
+    }
+
+    pub fn max_col(&self) -> i64 {
+        self.max.col()
     }
 
     pub fn log_moves_over_self(&self, level: Level, path: &Vec<RowCol>) {

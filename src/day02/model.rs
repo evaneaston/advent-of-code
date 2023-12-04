@@ -4,12 +4,7 @@ pub struct Game {
     pub cube_sets: Vec<CubeSet>,
 }
 impl Game {
-    pub fn new(id: u32) -> Self {
-        Self {
-            id,
-            cube_sets: vec![],
-        }
-    }
+    
     pub fn max_red(&self) -> u32 {
         self.cube_sets.iter().map(|s| s.red).max().unwrap()
     }

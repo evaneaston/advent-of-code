@@ -13,7 +13,7 @@ use nom::{
 use seq_macro::seq;
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Error, Read},
+    io::{BufRead, BufReader, Error, Read}, fmt::Display,
 };
 use thiserror::Error;
 
@@ -148,6 +148,11 @@ impl RowCol {
     }
 }
 
+impl Display for RowCol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "R{}C{}", self.row(), self.col())
+    }
+}
 impl From<(i64, i64)> for RowCol {
     fn from(pair: (i64, i64)) -> Self {
         RowCol(pair.0, pair.1)
