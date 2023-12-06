@@ -1,22 +1,17 @@
-use aoc2023::{enable_logging, get_day_parts, AocError, DayPartFn, DailyInput, InputType};
+use aoc2023::{enable_logging, get_day_parts, AocError, DailyInput, DayPartFn, InputType};
 use regex::Regex;
-use std::{collections::BTreeSet, env};
+use std::{collections::BTreeSet, env, io::{stdout, Write}};
 
 fn main() -> Result<(), AocError> {
     enable_logging()?;
 
     let day_parts = get_day_parts();
 
-    for DayPartFn {
-        day,
-        part,
-        function,
-    } in find_parts_to_run(&day_parts)
-    {
+    for DayPartFn { day, part, function } in find_parts_to_run(&day_parts) {
+        print!("[Day {} Part {}]: ", day, part);
+        stdout().flush()?;
         println!(
-            "[Day {} Part {}]: {}",
-            day,
-            part,
+            "{}",
             function(DailyInput {
                 day: *day,
                 part: None,
