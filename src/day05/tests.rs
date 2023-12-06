@@ -34,7 +34,7 @@ fn test_part2_example() {
         part2(DailyInput {
             day: 5,
             part: None,
-            input_type: InputType::Challenge
+            input_type: InputType::Example
         })
         .unwrap(),
         "46"
