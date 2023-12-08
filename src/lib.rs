@@ -7,13 +7,12 @@ seq!(N in 10..=25 {
 });
 
 use flexi_logger::Logger;
-use nom::{
-    bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult,
-};
+use nom::{bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult};
 use seq_macro::seq;
 use std::{
+    fmt::Display,
     fs::File,
-    io::{BufRead, BufReader, Error, Read}, fmt::Display,
+    io::{BufRead, BufReader, Error, Read},
 };
 use thiserror::Error;
 
@@ -56,11 +55,7 @@ pub struct DayPartFn {
 }
 impl DayPartFn {
     pub fn new(day: usize, part: usize, function: PartFn) -> Self {
-        Self {
-            day,
-            part,
-            function,
-        }
+        Self { day, part, function }
     }
 }
 
@@ -194,9 +189,7 @@ pub fn blank_line(input: &str) -> IResult<&str, ()> {
 }
 
 pub fn enable_logging() -> Result<(), AocError> {
-    Logger::try_with_env_or_str("info")?
-        .log_to_stdout()
-        .start()?;
+    Logger::try_with_env_or_str("info")?.log_to_stdout().start()?;
     Ok(())
 }
 
@@ -213,5 +206,28 @@ mod tests {
 
         let new_rc: RowCol = (1, 2).into();
         assert_eq!(new_rc, rc);
+    }
+}
+
+mod nums {
+
+    pub(crate) fn gcd(a: u64, b: u64) -> u64 {
+        if b == 0 {
+            a
+        } else {
+            gcd(b, a % b)
+        }
+    }
+
+    pub(crate) fn lcm_of_two(a: u64, b: u64) -> u64 {
+        if a == 0 || b == 0 {
+            0
+        } else {
+            (a * b) / gcd(a, b)
+        }
+    }
+
+    pub(crate) fn lcm_of_multiple(numbers: &[u64]) -> u64 {
+        numbers.iter().cloned().fold(1, lcm_of_two)
     }
 }
