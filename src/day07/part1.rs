@@ -1,9 +1,9 @@
-use std::{collections::HashMap, fmt::Display};
-
-use crate::{AocError, DailyInput};
+use super::{Card, HandBid, HandType};
+use crate::{count_distinct, AocError, DailyInput};
+use std::fmt::Display;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-pub(crate) enum Card {
+pub(crate) enum Part1Card {
     Two,
     Three,
     Four,
@@ -18,63 +18,8 @@ pub(crate) enum Card {
     King,
     Ace,
 }
-impl Default for Card {
-    fn default() -> Self {
-        Self::Two
-    }
-}
-impl From<char> for Card {
-    fn from(value: char) -> Self {
-        match value {
-            '2' => Self::Two,
-            '3' => Self::Three,
-            '4' => Self::Four,
-            '5' => Self::Five,
-            '6' => Self::Six,
-            '7' => Self::Seven,
-            '8' => Self::Eight,
-            '9' => Self::Nine,
-            'T' => Self::Ten,
-            'J' => Self::Jack,
-            'Q' => Self::Queen,
-            'K' => Self::King,
-            'A' => Self::Ace,
-            _ => panic!("Invalid card {}", value),
-        }
-    }
-}
-impl Display for Card {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Card::Two => write!(f, "2"),
-            Card::Three => write!(f, "3"),
-            Card::Four => write!(f, "4"),
-            Card::Five => write!(f, "5"),
-            Card::Six => write!(f, "6"),
-            Card::Seven => write!(f, "7"),
-            Card::Eight => write!(f, "8"),
-            Card::Nine => write!(f, "9"),
-            Card::Ten => write!(f, "T"),
-            Card::Jack => write!(f, "J"),
-            Card::Queen => write!(f, "Q"),
-            Card::King => write!(f, "K"),
-            Card::Ace => write!(f, "A"),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, PartialOrd, Eq, Copy, Clone)]
-pub(crate) enum HandType {
-    HighCard,
-    OnePair,
-    TwoPair,
-    ThreeOfAKind,
-    FullHouse,
-    FourOfAKind,
-    FiveOfAKind,
-}
-impl From<&[Card; 5]> for HandType {
-    fn from(cards: &[Card; 5]) -> Self {
+impl Card for Part1Card {
+    fn hand_type(cards: &[Self; 5]) -> HandType {
         let card_counts = count_distinct(cards);
         match card_counts.len() {
             1 => HandType::FiveOfAKind,
@@ -97,89 +42,54 @@ impl From<&[Card; 5]> for HandType {
         }
     }
 }
-
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub(crate) struct Hand {
-    pub(crate) cards: [Card; 5],
-    pub(crate) hand_type: HandType,
-}
-impl Hand {
-    pub fn new(cards: [Card; 5]) -> Self {
-        let hand_type = HandType::from(&cards);
-        Hand { cards, hand_type }
+impl Default for Part1Card {
+    fn default() -> Self {
+        Self::Two
     }
 }
-impl From<&str> for Hand {
-    fn from(value: &str) -> Self {
-        if value.len() != 5 {
-            panic!("Invalid input of {}.  Must be a five-character string", value);
-        }
-
-        let mut cards: [Card; 5] = Default::default();
-        for (index, c) in value.chars().take(5).enumerate() {
-            cards[index] = Card::from(c);
-        }
-        Hand::new(cards)
-    }
-}
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.hand_type.partial_cmp(&other.hand_type) {
-            Some(core::cmp::Ordering::Equal) => Some(compare(&self.cards, &other.cards)),
-            ord => ord,
+impl From<char> for Part1Card {
+    fn from(value: char) -> Self {
+        match value {
+            '2' => Self::Two,
+            '3' => Self::Three,
+            '4' => Self::Four,
+            '5' => Self::Five,
+            '6' => Self::Six,
+            '7' => Self::Seven,
+            '8' => Self::Eight,
+            '9' => Self::Nine,
+            'T' => Self::Ten,
+            'J' => Self::Jack,
+            'Q' => Self::Queen,
+            'K' => Self::King,
+            'A' => Self::Ace,
+            _ => panic!("Invalid card {}", value),
         }
     }
 }
-impl Ord for Hand {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        compare(&self.cards, &other.cards)
-    }
-}
-impl Display for Hand {
+impl Display for Part1Card {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}{}{}{}{} ({:?})",
-            self.cards[0], self.cards[1], self.cards[2], self.cards[3], self.cards[4], self.hand_type
-        )
-    }
-}
-
-pub(crate) fn compare(a: &[Card], b: &[Card]) -> std::cmp::Ordering {
-    a.iter()
-        .zip(b)
-        .map(|(x, y)| x.cmp(y))
-        .find(|&ord| ord != std::cmp::Ordering::Equal)
-        .unwrap_or(std::cmp::Ordering::Equal)
-}
-
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct HandBid {
-    hand: Hand,
-    bid: u64,
-}
-impl From<&str> for HandBid {
-    fn from(value: &str) -> Self {
-        let mut iter = value.split(' ');
-        HandBid {
-            hand: Hand::from(iter.next().unwrap()),
-            bid: iter.next().unwrap().parse().unwrap(),
+        match self {
+            Self::Two => write!(f, "2"),
+            Self::Three => write!(f, "3"),
+            Self::Four => write!(f, "4"),
+            Self::Five => write!(f, "5"),
+            Self::Six => write!(f, "6"),
+            Self::Seven => write!(f, "7"),
+            Self::Eight => write!(f, "8"),
+            Self::Nine => write!(f, "9"),
+            Self::Ten => write!(f, "T"),
+            Self::Jack => write!(f, "J"),
+            Self::Queen => write!(f, "Q"),
+            Self::King => write!(f, "K"),
+            Self::Ace => write!(f, "A"),
         }
     }
 }
 
-fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
-where
-    T: Eq + PartialEq + std::hash::Hash,
-{
-    values.iter().fold(HashMap::new(), |mut acc, num| {
-        *acc.entry(num).or_insert(0) += 1;
-        acc
-    })
-}
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let mut hbs: Vec<HandBid> = input
+    let mut hbs: Vec<HandBid<Part1Card>> = input
         .get_input_lines()?
         .iter()
         .map(|line| HandBid::from(line.as_str()))

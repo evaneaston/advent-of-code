@@ -12,7 +12,7 @@ use seq_macro::seq;
 use std::{
     fmt::Display,
     fs::File,
-    io::{BufRead, BufReader, Error, Read},
+    io::{BufRead, BufReader, Error, Read}, collections::HashMap,
 };
 use thiserror::Error;
 
@@ -230,4 +230,15 @@ mod nums {
     pub(crate) fn lcm_of_multiple(numbers: &[u64]) -> u64 {
         numbers.iter().cloned().fold(1, lcm_of_two)
     }
+}
+
+
+pub(crate) fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
+where
+    T: Eq + PartialEq + std::hash::Hash,
+{
+    values.iter().fold(HashMap::new(), |mut acc, num| {
+        *acc.entry(num).or_insert(0) += 1;
+        acc
+    })
 }
