@@ -1,11 +1,9 @@
-use crate::{AocError,DailyInput};
+pub mod part1;
+pub mod part2;
 
-pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    input.get_input_as_single_string()?;
-    Ok("".to_string())
-}
+#[cfg(test)]
+mod tests;
 
-pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    input.get_input_as_single_string()?;
-    Ok("".to_string())
-}
+
+pub use part1::part1;
+pub use part2::part2;
