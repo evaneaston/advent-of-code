@@ -3,7 +3,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     day07::{
-        part1::{compare, Card, Hand, HandType, self},
+        part1::{Card, Hand, HandType, self},
         part2,
     },
     DailyInput, InputType,

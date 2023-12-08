@@ -104,8 +104,6 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let sum: u64 = symbol_numbers
         .iter()
         .filter_map(|((_, symbol), numbers)| {
-            let star = b'*';
-            println!("{symbol} {star} {:?}", numbers);
             if *symbol == b'*' && numbers.len() == 2 {
                 Some(numbers.iter().map(|n| *n as u64).product::<u64>())
             } else {

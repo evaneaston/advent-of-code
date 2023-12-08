@@ -1,26 +1,41 @@
 use aoc2023::{enable_logging, get_day_parts, AocError, DailyInput, DayPartFn, InputType};
 use regex::Regex;
-use std::{collections::BTreeSet, env, io::{stdout, Write}};
+use std::{
+    collections::BTreeSet,
+    env,
+    io::{stdout, Write},
+    time::{Duration, Instant},
+};
 
 fn main() -> Result<(), AocError> {
     enable_logging()?;
 
     let day_parts = get_day_parts();
 
+    let start_all_time = Instant::now();
     for DayPartFn { day, part, function } in find_parts_to_run(&day_parts) {
         print!("[Day {} Part {}]: ", day, part);
         stdout().flush()?;
-        println!(
-            "{}",
-            function(DailyInput {
-                day: *day,
-                part: None,
-                input_type: InputType::Challenge
-            })?
-        );
-    }
+        let start_time = Instant::now();
+        let result = function(DailyInput {
+            day: *day,
+            part: None,
+            input_type: InputType::Challenge,
+        })?;
+        let day_part_duration: Duration = Instant::now() - start_time;
 
+        println!("{} ({})", result, format_duration(&day_part_duration));
+    }
+    let total_duration: Duration = Instant::now() - start_all_time;
+    println!("Total time: {}", format_duration(&total_duration));
     Ok(())
+}
+
+fn format_duration(duration: &Duration) -> String {
+    let minutes = duration.as_secs() / 60;
+    let seconds = duration.as_secs() % 60;
+    let microseconds = duration.subsec_micros();
+    format!("{:02}:{:02}.{:06}", minutes, seconds, microseconds)
 }
 
 fn find_parts_to_run(day_parts: &[DayPartFn]) -> Vec<&DayPartFn> {
