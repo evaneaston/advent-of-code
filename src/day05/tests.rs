@@ -7,8 +7,8 @@ fn test_part1_example() {
     assert_eq!(
         part1(DailyInput {
             day: 5,
-            part: None,
-            input_type: InputType::Example
+            input_type: InputType::Example,
+            number: None,
         })
         .unwrap(),
         "35"
@@ -20,8 +20,8 @@ fn test_part1_challenge() {
     assert_eq!(
         part1(DailyInput {
             day: 5,
-            part: None,
-            input_type: InputType::Challenge
+            input_type: InputType::Challenge,
+            number: None,
         })
         .unwrap(),
         "251346198"
@@ -33,8 +33,8 @@ fn test_part2_example() {
     assert_eq!(
         part2(DailyInput {
             day: 5,
-            part: None,
-            input_type: InputType::Example
+            input_type: InputType::Example,
+            number: None,
         })
         .unwrap(),
         "46"
@@ -46,8 +46,8 @@ fn test_part2_challenge() {
     assert_eq!(
         part2(DailyInput {
             day: 5,
-            part: None,
-            input_type: InputType::Challenge
+            input_type: InputType::Challenge,
+            number: None,
         })
         .unwrap(),
         "72263011"

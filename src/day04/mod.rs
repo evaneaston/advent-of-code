@@ -96,8 +96,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 4,
-                part: None,
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: None,
             })
             .unwrap(),
             "13"
@@ -109,8 +109,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 4,
-                part: None,
-                input_type: InputType::Challenge
+                input_type: InputType::Challenge,
+                number: None,
             })
             .unwrap(),
             "25174"
@@ -122,8 +122,8 @@ mod tests {
         assert_eq!(
             part2(DailyInput {
                 day: 4,
-                part: None,
-                input_type: InputType::Challenge
+                input_type: InputType::Challenge,
+                number: None,
             })
             .unwrap(),
             "6420979"
@@ -135,8 +135,8 @@ mod tests {
         assert_eq!(
             part2(DailyInput {
                 day: 4,
-                part: None,
-                input_type: InputType::Challenge
+                input_type: InputType::Challenge,
+                number: None,
             })
             .unwrap(),
             "6420979"

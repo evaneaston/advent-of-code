@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
+use log::debug;
 use regex::Regex;
 
 use crate::{grid::Grid, AocError, DailyInput, RowCol};
@@ -73,7 +74,7 @@ fn get_number_locations(lines: &[String]) -> Vec<(RowCol, RowCol, u32)> {
         .iter()
         .enumerate()
         .flat_map(|(row, line)| {
-            //println!("{line}");
+            debug!("{line}");
             RE.find_iter(line).map(move |m| {
                 (
                     RowCol(row as i64, m.start() as i64),
@@ -127,8 +128,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 3,
-                part: None,
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: None,
             })
             .unwrap(),
             "4361"
@@ -140,8 +141,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 3,
-                part: None,
-                input_type: InputType::Challenge
+                input_type: InputType::Challenge,
+                number: None,
             })
             .unwrap(),
             "514969"
@@ -153,8 +154,8 @@ mod tests {
         assert_eq!(
             part2(DailyInput {
                 day: 3,
-                part: None,
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: None,
             })
             .unwrap(),
             "467835"

@@ -1,4 +1,6 @@
+pub(crate) mod nums;
 mod grid;
+
 seq!(N in 1..=9 {
    mod day0~N;
 });
@@ -10,9 +12,10 @@ use flexi_logger::Logger;
 use nom::{bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult};
 use seq_macro::seq;
 use std::{
+    collections::HashMap,
     fmt::Display,
     fs::File,
-    io::{BufRead, BufReader, Error, Read}, collections::HashMap,
+    io::{BufRead, BufReader, Error, Read},
 };
 use thiserror::Error;
 
@@ -87,8 +90,8 @@ pub enum InputType {
 }
 pub struct DailyInput {
     pub day: usize,
-    pub part: Option<usize>,
     pub input_type: InputType,
+    pub number: Option<usize>,
 }
 impl DailyInput {
     fn get_input_file(&self) -> Result<File, Error> {
@@ -97,9 +100,9 @@ impl DailyInput {
             InputType::Example => "example",
             InputType::Challenge => "challenge",
         };
-        let file_name = match self.part {
-            Some(part) => format!("src/{day}/challenge/{day}-part{part}-{qualifier}-input.txt"),
-            None => format!("src/{day}/challenge/{day}-{qualifier}-input.txt"),
+        let file_name = match self.number {
+            Some(number) => format!("src/{day}/inputs/{day}-{qualifier}{number}.txt"),
+            None => format!("src/{day}/inputs/{day}-{qualifier}.txt"),
         };
         self.open_input_file(&file_name)
     }
@@ -140,6 +143,21 @@ impl RowCol {
     }
     pub fn col(&self) -> i64 {
         self.1
+    }
+    pub fn plus_row(&mut self) -> Self {
+        Self(self.row() + 1, self.col())
+    }
+
+    pub fn minus_row(&mut self) -> Self {
+        Self(self.row() - 1, self.col())
+    }
+
+    pub fn plus_col(&mut self) -> Self {
+        Self(self.row(), self.col() + 1)
+    }
+
+    pub fn minus_col(&mut self) -> Self {
+        Self(self.row(), self.col() - 1)
     }
 }
 
@@ -193,6 +211,18 @@ pub fn enable_logging() -> Result<(), AocError> {
     Ok(())
 }
 
+
+pub(crate) fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
+where
+    T: Eq + PartialEq + std::hash::Hash,
+{
+    values.iter().fold(HashMap::new(), |mut acc, num| {
+        *acc.entry(num).or_insert(0) += 1;
+        acc
+    })
+}
+
+
 #[cfg(test)]
 mod tests {
     use crate::RowCol;
@@ -207,38 +237,4 @@ mod tests {
         let new_rc: RowCol = (1, 2).into();
         assert_eq!(new_rc, rc);
     }
-}
-
-mod nums {
-
-    pub(crate) fn gcd(a: u64, b: u64) -> u64 {
-        if b == 0 {
-            a
-        } else {
-            gcd(b, a % b)
-        }
-    }
-
-    pub(crate) fn lcm_of_two(a: u64, b: u64) -> u64 {
-        if a == 0 || b == 0 {
-            0
-        } else {
-            (a * b) / gcd(a, b)
-        }
-    }
-
-    pub(crate) fn lcm_of_multiple(numbers: &[u64]) -> u64 {
-        numbers.iter().cloned().fold(1, lcm_of_two)
-    }
-}
-
-
-pub(crate) fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
-where
-    T: Eq + PartialEq + std::hash::Hash,
-{
-    values.iter().fold(HashMap::new(), |mut acc, num| {
-        *acc.entry(num).or_insert(0) += 1;
-        acc
-    })
 }

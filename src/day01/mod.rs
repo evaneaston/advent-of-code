@@ -87,8 +87,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 1,
-                part: Some(1),
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: Some(1),
             })
             .unwrap(),
             "142"
@@ -100,8 +100,8 @@ mod tests {
         assert_eq!(
             part2(DailyInput {
                 day: 1,
-                part: Some(2),
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: Some(2),
             })
             .unwrap(),
             "281"

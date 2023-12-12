@@ -14,17 +14,17 @@ fn main() -> Result<(), AocError> {
 
     let start_all_time = Instant::now();
     for DayPartFn { day, part, function } in find_parts_to_run(&day_parts) {
-        print!("[Day {} Part {}]: ", day, part);
+        print!("[Day {} Part {}]", day, part);
         stdout().flush()?;
         let start_time = Instant::now();
         let result = function(DailyInput {
             day: *day,
-            part: None,
             input_type: InputType::Challenge,
+            number: None,
         })?;
         let day_part_duration: Duration = Instant::now() - start_time;
 
-        println!("{} ({})", result, format_duration(&day_part_duration));
+        println!(" in {} = {}", format_duration(&day_part_duration), result);
     }
     let total_duration: Duration = Instant::now() - start_all_time;
     println!("Total time: {}", format_duration(&total_duration));
@@ -35,7 +35,7 @@ fn format_duration(duration: &Duration) -> String {
     let minutes = duration.as_secs() / 60;
     let seconds = duration.as_secs() % 60;
     let microseconds = duration.subsec_micros();
-    format!("{:02}:{:02}.{:06}", minutes, seconds, microseconds)
+    format!("{:2}m {:2}.{:06}s", minutes, seconds, microseconds)
 }
 
 fn find_parts_to_run(day_parts: &[DayPartFn]) -> Vec<&DayPartFn> {

@@ -35,6 +35,8 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
 
 #[cfg(test)]
 mod tests {
+    use log::debug;
+
     use crate::{
         day02::{parse::game, part1, part2},
         DailyInput, InputType,
@@ -45,7 +47,7 @@ mod tests {
         let game = game("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red")
             .unwrap()
             .1;
-        println!("game: {:?}", game);
+        debug!("game: {:?}", game);
         assert_eq!(game.max_green(), 13);
         assert_eq!(game.max_red(), 20);
         assert_eq!(game.max_blue(), 6);
@@ -56,8 +58,8 @@ mod tests {
         assert_eq!(
             part1(DailyInput {
                 day: 2,
-                part: None,
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: None,
             })
             .unwrap(),
             "8"
@@ -69,8 +71,8 @@ mod tests {
         assert_eq!(
             part2(DailyInput {
                 day: 2,
-                part: None,
-                input_type: InputType::Example
+                input_type: InputType::Example,
+                number: None,
             })
             .unwrap(),
             "2286"
