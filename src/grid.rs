@@ -231,7 +231,7 @@ impl Grid {
     }
 
     pub fn max_row(&self) -> i64 {
-        self.max.col()
+        self.max.row()
     }
 
     pub fn max_col(&self) -> i64 {
