@@ -9,7 +9,7 @@ use std::{
 
 use crate::RowCol;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid {
     rows: usize,
     cols: usize,
@@ -98,10 +98,7 @@ impl Grid {
 
     pub fn set(&mut self, rc: RowCol, value: u8) {
         if !self.is_in_window(rc) {
-            panic!(
-                "Set at {:?} outside of range {:?}-{:?}",
-                rc, self.min, self.max
-            );
+            panic!("Set at {:?} outside of range {:?}-{:?}", rc, self.min, self.max);
         }
 
         self._set(rc, value);
@@ -141,12 +138,12 @@ impl Grid {
     }
 
     fn to_zero_based(&self, rc: RowCol) -> RowCol {
-        let result = RowCol::new(
-            self.to_zero_based_row(rc.row()),
-            self.to_zero_based_col(rc.col()),
-        );
+        let result = RowCol::new(self.to_zero_based_row(rc.row()), self.to_zero_based_col(rc.col()));
         if result.row() < 0 || result.col() < 0 {
-            panic!("Conversion of {:?} to zero-based {:?} failed.  Somethings negative when it shouldn't be.  self={:?}", rc, result, self);
+            panic!(
+                "Conversion of {:?} to zero-based {:?} failed.  Somethings negative when it shouldn't be.  self={:?}",
+                rc, result, self
+            );
         }
         result
     }
@@ -217,7 +214,7 @@ impl Grid {
     pub fn min(&self) -> RowCol {
         self.min
     }
-    
+
     pub fn min_row(&self) -> i64 {
         self.min.row()
     }
@@ -271,6 +268,23 @@ impl Grid {
 
             log!(level, "Moves: \n{}", &self);
             log!(level, "Path Length={}", path.len() - 1);
+        }
+    }
+
+    pub fn transpose(&self) -> Self {
+        let mut new_data = vec![0; self.data.len()];
+        self.data.iter().enumerate().for_each(|(index, v)| {
+            let row_index = index / self.col_count();
+            let col_index = index % self.col_count();
+            let new_index = col_index * self.row_count() + row_index;
+            *new_data.get_mut(new_index).unwrap() = *v;
+        });
+        Self {
+            rows: self.cols,
+            cols: self.rows,
+            min: RowCol::new(self.min.col(), self.min.row()),
+            max: RowCol::new(self.max.col(), self.max.row()),
+            data: new_data,
         }
     }
 }
@@ -389,5 +403,24 @@ mod tests {
         wg.set((20, 10).into(), b'4');
 
         println!("{}", wg);
+    }
+
+    #[test]
+    fn test_transpose() {
+        let lines = "abcdef\n\
+        ghijkl\n\
+        mnopqr";
+
+        let expected_transposed = "agm\n\
+            bhn\n\
+            cio\n\
+            djp\n\
+            ekq\n\
+            flr";
+
+        let grid = Grid::new(&lines.split('\n').map(|s| s.trim().to_string()).collect());
+        let expected_grid = Grid::new(&expected_transposed.split('\n').map(|s| s.trim().to_string()).collect());
+
+        assert_eq!(grid.transpose(), expected_grid);
     }
 }
