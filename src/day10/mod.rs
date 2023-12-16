@@ -17,10 +17,7 @@ pub enum Symbol {
 }
 impl Symbol {
     fn is_corner(&self) -> bool {
-        match self {
-            Symbol::NE | Symbol::NW | Symbol::SW | Symbol::SE => true,
-            _ => false,
-        }
+        matches!(self, Symbol::NE | Symbol::NW | Symbol::SW | Symbol::SE)
     }
 }
 impl From<u8> for Symbol {
@@ -252,12 +249,13 @@ pub(crate) fn shoelace_area(vertices: &[XY]) -> f64 {
 // i= A+1-b/2
 // This only works with integer vertices
 pub(crate) fn get_num_interior_points(vertices: &[XY]) -> i64 {
-    let area = shoelace_area(&vertices);
+    let vertices = &vertices;
+    let area = shoelace_area(vertices);
     debug!(" shoelace area={area}");
 
     let mut boundary_points_not_in_vertices = 0_usize;
 
-    let mut looped: Vec<XY> = Vec::from(vertices);
+    let mut looped: Vec<XY> = Vec::from(*vertices);
     looped.push(looped[0]);
 
     for p in looped.windows(2) {
@@ -280,7 +278,7 @@ pub(crate) fn get_num_interior_points(vertices: &[XY]) -> i64 {
     debug!(" boundary_points_not_in_vertices={boundary_points_not_in_vertices}");
 
     let num_boundary_points = vertices.len() + boundary_points_not_in_vertices;
-    let num_interior_points = area + 1 as f64 - num_boundary_points as f64 / 2.;
+    let num_interior_points = area + 1_f64 - num_boundary_points as f64 / 2.;
 
     debug!(" num_boundary_points={num_boundary_points}");
     debug!(" num_interior_points={num_interior_points}");

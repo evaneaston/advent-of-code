@@ -1,63 +1,53 @@
-use std::collections::HashSet;
-
-use log::debug;
-
 use crate::{grid::Grid, AocError, DailyInput, RowCol};
+use log::debug;
+use nom::AsChar;
 
-fn are_cols_the_same(grid: &Grid, col1: i64, col2: i64) -> bool {
-    (grid.min_row()..=grid.max_row())
-        .map(|row| {
-            (
-                grid.get(RowCol::new(row, col1)).unwrap(),
-                grid.get(RowCol::new(row, col2)).unwrap(),
-            )
-        })
-        .all(|(c1, c2)| c1 == c2)
-}
-
-#[derive(PartialEq, Debug, Clone, Copy, Hash, Eq)]
+#[derive(PartialEq, Debug, Clone, Copy, Hash, Eq, PartialOrd, Ord)]
 pub(crate) struct MirrorLine {
     before: i64,
     after: i64,
     num_before: i64,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy, Hash, Eq)]
+#[derive(PartialEq, Debug, Clone, Copy, Hash, Eq, PartialOrd, Ord)]
 pub(crate) enum MirrorLineMatch {
     Vertical(MirrorLine),
     Horizontal(MirrorLine),
-    None,
 }
 
-pub(crate) fn find_mirror_line(grid: &Grid) -> Option<MirrorLine> {
-    for col in grid.min_col()..grid.max_col() {
-        let mut comp = (col, col + 1);
+pub(crate) fn find_h_mirror_line(grid: &Grid, num_differences_allowed: usize) -> Option<MirrorLine> {
+    for row in grid.min_row()..grid.max_row() {
+        let num_to_compare = (row - grid.min_row() + 1).min(grid.max_row() - row);
+        // println!("   num to compare = {num_to_compare}");
+        let before_range = row - num_to_compare + 1..=row;
+        let after_range = row + 1..=row + num_to_compare;
 
-        loop {
-            if !are_cols_the_same(grid, comp.0, comp.1) {
-                break;
-            }
-            if comp.0 <= grid.min_col() || comp.1 >= grid.max_col() {
-                return Some(MirrorLine {
-                    before: col,
-                    after: col + 1,
-                    num_before: col - grid.min_col() + 1,
-                });
-            }
-            comp = (comp.0 - 1, comp.1 + 1);
+        // println!("Comparing ranges {:?} and {:?}", before_range, after_range);
+        let above = before_range
+            .rev()
+            .flat_map(|r| grid.get_row(r).unwrap().rev())
+            .collect::<Vec<_>>();
+        let below = after_range
+            .flat_map(|r| grid.get_row(r).unwrap().rev())
+            .collect::<Vec<_>>();
+        // println!(" CMP {num_to_compare} around {row}:{}", row+1);
+        // println!("      {:?} ", above.iter().map(|d| d.as_char()).collect::<String>());
+        // println!("      {:?} ", below.iter().map(|d| d.as_char()).collect::<String>());
+        if above.iter().zip(below).filter(|&(&a, b)| a != b).count() == num_differences_allowed {
+            return Some(MirrorLine {
+                before: row,
+                after: row + 1,
+                num_before: row - grid.min_row() + 1,
+            });
         }
     }
     None
 }
-pub(crate) fn find_mirror_lines(grid: &Grid) -> Vec<MirrorLineMatch> {
-    [
-        find_mirror_line(grid).map(MirrorLineMatch::Vertical),
-        find_mirror_line(&grid.transpose()).map(MirrorLineMatch::Horizontal),
-    ]
-    .iter()
-    .flatten()
-    .copied()
-    .collect::<Vec<_>>()
+
+pub(crate) fn find_all_mirror_lines_btree(grid: &Grid, num_differences_allowed: usize) -> Option<MirrorLineMatch> {
+    find_h_mirror_line(&grid, num_differences_allowed)
+        .map(MirrorLineMatch::Horizontal)
+        .or_else(|| find_h_mirror_line(&grid.transpose(), num_differences_allowed).map(MirrorLineMatch::Vertical))
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
@@ -68,30 +58,20 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
         .map(|(index, grid)| {
-            debug!("Grid {index}");
-            debug!(" {}", grid);
-
-            let transposed = grid.transpose();
-
-            let mut all: Vec<MirrorLineMatch> = vec![];
-            if let Some(mirror_line) = find_mirror_line(&grid) {
-                all.push(MirrorLineMatch::Vertical(mirror_line));
-            }
-            if let Some(mirror_line) = find_mirror_line(&transposed) {
-                all.push(MirrorLineMatch::Horizontal(mirror_line));
-            }
-            all
+            println!("Grid {index}");
+            println!(" {}", grid);
+            let ml = find_all_mirror_lines_btree(&grid, 0);
+            println!("  m: {:?}", ml);
+            ml
         })
         .map(|mlms| {
-            if mlms.is_empty() {
-                panic!("No mirror lines found")
-            }
-            *mlms.first().unwrap()
+            let miror_line = mlms.expect("No mirror lines found");
+            println!("   {:?}", miror_line);
+            miror_line
         })
         .map(|mlm| match mlm {
             MirrorLineMatch::Vertical(mlm) => mlm.num_before,
             MirrorLineMatch::Horizontal(mlm) => mlm.num_before * 100,
-            MirrorLineMatch::None => 0,
         })
         .sum();
 
@@ -108,52 +88,20 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
         .map(|(index, grid)| {
-            println!("====================================");
             println!("Grid {index}");
-
-            let mlms = find_mirror_lines(&grid);
-
-            assert_eq!(mlms.len(), 1);
-
-            let initial = *mlms.first().unwrap();
-            println!("  Initial     {:?}", initial);
-
-            let mut results = HashSet::<MirrorLineMatch>::new();
-
-            let mut grid2 = grid.clone();
-            for r in grid.min_row()..=grid.max_row() {
-                for c in grid.min_col()..=grid.max_col() {
-                    let rc = RowCol::new(r, c);
-                    print!(" {}", rc);
-                    let ch = grid.get(rc).unwrap();
-                    let flipped_ch = if ch == b'.' { b'#' } else { b'.' };
-
-                    grid2.set(rc, flipped_ch); // flip
-
-                    let mlms2 = find_mirror_lines(&grid2);
-                    // for m in mlms2 {
-                    //     results.insert(m);
-                    // }
-                    if let Some(new_mlm) = mlms2.iter().find(|&mlm| *mlm != initial) {
-                        results.insert(*new_mlm);
-                    }
-
-                    grid2.set(rc, ch); // restore
-                }
-            }
-
-            println!("  Final       {:?}", results);
-            // if results.len() != 1 {
-            //     panic!("Should be a single different reflection line");
-            // }
-            let result = *results.iter().next().unwrap_or(&MirrorLineMatch::None);
-            println!("  Final       {:?}", result);
-            result
+            println!(" {}", grid);
+            let ml = find_all_mirror_lines_btree(&grid, 1);
+            println!("  m: {:?}", ml);
+            ml
+        })
+        .map(|mlms| {
+            let miror_line = mlms.expect("No mirror lines found");
+            println!("   {:?}", miror_line);
+            miror_line
         })
         .map(|mlm| match mlm {
             MirrorLineMatch::Vertical(mlm) => mlm.num_before,
             MirrorLineMatch::Horizontal(mlm) => mlm.num_before * 100,
-            MirrorLineMatch::None => 0,
         })
         .sum();
 
@@ -217,8 +165,7 @@ mod test {
                 number: None,
             })
             .unwrap(),
-            "" // "20686" // too low
-               //    "42789" // too high
+            "28627"
         );
     }
 }

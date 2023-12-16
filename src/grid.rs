@@ -5,6 +5,7 @@ use std::{
     fmt::Display,
     iter::repeat,
     ops::Range,
+    slice::Iter,
 };
 
 use crate::RowCol;
@@ -134,6 +135,8 @@ impl Grid {
         let index = self.index_of(zero_based_rc);
         if let Some(rv) = self.data.get_mut(index) {
             *rv = value;
+        } else {
+            panic!("AASASD");
         }
     }
 
@@ -285,6 +288,22 @@ impl Grid {
             min: RowCol::new(self.min.col(), self.min.row()),
             max: RowCol::new(self.max.col(), self.max.row()),
             data: new_data,
+        }
+    }
+
+    pub fn get_row(&self, row_number: i64) -> Option<Iter<u8>> {
+        //println!("get_row({row_number}");
+        if row_number >= self.min_row() && row_number <= self.max_row() {
+            //println!("  minrow={}, maxrow={} col_count={}", self.min_row(), self.max_row(), self.col_count());
+            let row_offset = (row_number - self.min_row()) as usize;
+            // println!("  row offset={row_offset}");
+            let start: usize = row_offset * self.col_count();
+            // println!("  start={start}");
+            let end: usize = (row_offset + 1) * self.col_count();
+            // println!("  end={end}");
+            Some(self.data[start..end].iter())
+        } else {
+            None
         }
     }
 }
