@@ -55,16 +55,16 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         .map(Vec::from)
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
-        .map(|(index, grid)| {
-            println!("Grid {index}");
-            println!(" {}", grid);
+        .map(|(_index, grid)| {
+            // println!("Grid {index}");
+            // println!(" {}", grid);
             let ml = find_all_mirror_lines_btree(&grid, 0);
-            println!("  m: {:?}", ml);
+            // println!("  m: {:?}", ml);
             ml
         })
         .map(|mlms| {
             let miror_line = mlms.expect("No mirror lines found");
-            println!("   {:?}", miror_line);
+            // println!("   {:?}", miror_line);
             miror_line
         })
         .map(|mlm| match mlm {
@@ -73,7 +73,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         })
         .sum();
 
-    println!("{:?}", lines_to_left_and_above);
+    //println!("{:?}", lines_to_left_and_above);
 
     Ok(lines_to_left_and_above.to_string())
 }
@@ -85,16 +85,16 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         .map(Vec::from)
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
-        .map(|(index, grid)| {
-            println!("Grid {index}");
-            println!(" {}", grid);
+        .map(|(_index, grid)| {
+            //println!("Grid {index}");
+            //println!(" {}", grid);
             let ml = find_all_mirror_lines_btree(&grid, 1);
-            println!("  m: {:?}", ml);
+            //println!("  m: {:?}", ml);
             ml
         })
         .map(|mlms| {
             let miror_line = mlms.expect("No mirror lines found");
-            println!("   {:?}", miror_line);
+            //println!("   {:?}", miror_line);
             miror_line
         })
         .map(|mlm| match mlm {
@@ -103,7 +103,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .sum();
 
-    println!("{:?}", lines_to_left_and_above);
+    //println!("{:?}", lines_to_left_and_above);
 
     Ok(lines_to_left_and_above.to_string())
 }

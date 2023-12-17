@@ -106,8 +106,8 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let grid = load_grid(input)?;
     debug!("{grid}");
 
-    let mut h: usize = (grid.min_row()..=grid.max_row())
-        .map(|row| {
+    let max: usize = (grid.min_row()..=grid.max_row())
+        .flat_map(|row| {
             let from_start = Beam(RowCol::new(row, grid.min_col()), Direction::E);
             let from_end = Beam(RowCol::new(row, grid.max_col()), Direction::W);
             vec![
@@ -115,32 +115,29 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
                 (from_end, energy_from(&grid, from_end)),
             ]
         })
-        .flatten()
         .map(|e| {
-            println!("{:?}", e);
+            debug!("{:?}", e);
             e.1
         })
+        .chain(
+            (grid.min_col()..=grid.max_col())
+                .flat_map(|col| {
+                    let from_start = Beam(RowCol::new(grid.min_row(), col), Direction::S);
+                    let from_end = Beam(RowCol::new(grid.max_row(), col), Direction::N);
+                    vec![
+                        (from_start, energy_from(&grid, from_start)),
+                        (from_end, energy_from(&grid, from_end)),
+                    ]
+                })
+                .map(|e| {
+                    debug!("{:?}", e);
+                    e.1
+                }),
+        )
         .max()
         .unwrap();
 
-    let v: usize = (grid.min_col()..=grid.max_col())
-        .map(|col| {
-            let from_start = Beam(RowCol::new(grid.min_row(), col), Direction::S);
-            let from_end = Beam(RowCol::new(grid.max_row(), col), Direction::N);
-            vec![
-                (from_start, energy_from(&grid, from_start)),
-                (from_end, energy_from(&grid, from_end)),
-            ]
-        })
-        .flatten()
-        .map(|e| {
-            println!("{:?}", e);
-            e.1
-        })
-        .max()
-        .unwrap();
-
-    Ok((v.max(h)).to_string())
+    Ok(max.to_string())
 }
 
 pub(crate) fn load_grid(input: DailyInput) -> Result<Grid, AocError> {

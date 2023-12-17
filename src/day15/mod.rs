@@ -110,21 +110,21 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let inputs = load(input)?;
     let steps = inputs.iter().map(|s| Step::from(s.as_str())).collect::<Vec<Step>>();
 
-    print!("Steps=");
-    for s in &steps {
-        print!("{} ", s);
-    }
-    println!();
+    // print!("Steps=");
+    // for s in &steps {
+    //     print!("{} ", s);
+    // }
+    // println!();
 
     let mut boxes = Boxes((0..256).map(|_| Vec::<Lens>::new()).collect::<Vec<_>>());
 
     for step in &steps {
-        println!(" Step {}", step);
+        //println!(" Step {}", step);
         match step {
             Step::Equal(lens_key, focal_length) => boxes.add_to_box(lens_key, *focal_length),
             Step::Dash(lens_key) => boxes.remove_from_box(lens_key),
         };
-        for (index, bx) in boxes.0.iter().enumerate() {
+        for (_index, bx) in boxes.0.iter().enumerate() {
             if bx.is_empty() {
                 continue;
             }

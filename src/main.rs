@@ -14,7 +14,7 @@ fn main() -> Result<(), AocError> {
 
     let start_all_time = Instant::now();
     for DayPartFn { day, part, function } in find_parts_to_run(&day_parts) {
-        print!("[Day {} Part {}]", day, part);
+        print!("[Day {:2} Part {:2}]", day, part);
         stdout().flush()?;
         let start_time = Instant::now();
         let result = function(DailyInput {
