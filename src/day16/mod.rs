@@ -24,7 +24,7 @@ impl Display for Beam {
 }
 
 fn try_reflect(beam: Beam, c: u8) -> Vec<Beam> {
-    match (beam.1, c as u8) {
+    match (beam.1, c) {
         (Direction::E, b'\\') => vec![Direction::S],
         (Direction::E, b'/') => vec![Direction::N],
         (Direction::E, b'|') => vec![Direction::N, Direction::S],

@@ -1,6 +1,4 @@
 use crate::{grid::Grid, AocError, DailyInput, RowCol};
-use log::debug;
-use nom::AsChar;
 
 #[derive(PartialEq, Debug, Clone, Copy, Hash, Eq, PartialOrd, Ord)]
 pub(crate) struct MirrorLine {
@@ -45,7 +43,7 @@ pub(crate) fn find_h_mirror_line(grid: &Grid, num_differences_allowed: usize) ->
 }
 
 pub(crate) fn find_all_mirror_lines_btree(grid: &Grid, num_differences_allowed: usize) -> Option<MirrorLineMatch> {
-    find_h_mirror_line(&grid, num_differences_allowed)
+    find_h_mirror_line(grid, num_differences_allowed)
         .map(MirrorLineMatch::Horizontal)
         .or_else(|| find_h_mirror_line(&grid.transpose(), num_differences_allowed).map(MirrorLineMatch::Vertical))
 }

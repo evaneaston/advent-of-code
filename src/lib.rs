@@ -144,19 +144,19 @@ impl RowCol {
     pub fn col(&self) -> i64 {
         self.1
     }
-    pub fn plus_row(&mut self) -> Self {
+    pub fn plus_row(&self) -> Self {
         Self(self.row() + 1, self.col())
     }
 
-    pub fn minus_row(&mut self) -> Self {
+    pub fn minus_row(&self) -> Self {
         Self(self.row() - 1, self.col())
     }
 
-    pub fn plus_col(&mut self) -> Self {
+    pub fn plus_col(&self) -> Self {
         Self(self.row(), self.col() + 1)
     }
 
-    pub fn minus_col(&mut self) -> Self {
+    pub fn minus_col(&self) -> Self {
         Self(self.row(), self.col() - 1)
     }
 }
