@@ -1,19 +1,20 @@
-use crate::{day15::load, grid::Grid, AocError, DailyInput};
+use crate::{AocError, DailyInput};
 
-pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let grid = load(input)?;
+pub fn part1(_input: DailyInput) -> Result<String, AocError> {
+    // let grid = load(input)?;
     Ok("".to_string())
 }
 
-pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let grid = load(input)?;
+pub fn part2(_input: DailyInput) -> Result<String, AocError> {
+    // let grid = load(input)?;
     Ok("".to_string())
 }
 
-pub(crate) fn load_grid(input: DailyInput) -> Result<Grid, AocError> {
-    let lines = input.get_input_lines()?;
-    Ok(Grid::new(&lines))
-}
+//
+// pub(crate) fn load_grid(input: DailyInput) -> Result<Grid, AocError> {
+//     let lines = input.get_input_lines()?;
+//     Ok(Grid::new(&lines))
+// }
 
 #[cfg(test)]
 mod test {
@@ -30,7 +31,7 @@ mod test {
                 input_type: InputType::Example,
                 number: None,
             })
-            .unwrap(),
+                .unwrap(),
             "102"
         );
     }
@@ -43,7 +44,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-            .unwrap(),
+                .unwrap(),
             ""
         );
     }
@@ -56,7 +57,7 @@ mod test {
                 input_type: InputType::Example,
                 number: None,
             })
-            .unwrap(),
+                .unwrap(),
             ""
         );
     }
@@ -69,7 +70,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-            .unwrap(),
+                .unwrap(),
             ""
         );
     }

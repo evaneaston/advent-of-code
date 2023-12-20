@@ -335,6 +335,7 @@ impl Display for Grid {
 
 #[cfg(test)]
 mod tests {
+    use log::debug;
     use crate::grid::Grid;
 
     #[test]
@@ -362,7 +363,7 @@ mod tests {
     #[test]
     fn test_new() {
         let grid = Grid::new(&vec!["ABC".to_string(), "DEF".to_string()]);
-        println!("grid={}", grid);
+        debug!("grid={}", grid);
 
         assert_eq!(grid.get((0, 0).into()), Some(b'A'));
         assert_eq!(grid.get((0, 1).into()), Some(b'B'));
@@ -379,7 +380,7 @@ mod tests {
     #[test]
     fn test_new_with() {
         let grid = Grid::new_repeating((0, 0).into(), (2, 1).into(), b'.');
-        println!("grid: {:?}", grid);
+        debug!("grid: {:?}", grid);
 
         assert_eq!(grid.get((0, 0).into()), Some(b'.'));
         assert_eq!(grid.get((0, 1).into()), Some(b'.'));
@@ -404,7 +405,7 @@ mod tests {
         grid.set((1, 9).into(), b'^');
 
         grid.set((9, 0).into(), 100);
-        println!("{}", grid);
+        debug!("{}", grid);
     }
 
     #[test]
@@ -421,7 +422,7 @@ mod tests {
         wg.set((20, 60).into(), b'3');
         wg.set((20, 10).into(), b'4');
 
-        println!("{}", wg);
+        debug!("{}", wg);
     }
 
     #[test]
