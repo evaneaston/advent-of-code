@@ -4,11 +4,15 @@ pub mod part2;
 #[cfg(test)]
 mod tests;
 
-use std::collections::HashMap;
-use regex::Regex;
 pub use part1::part1;
+//pub use part2::part2_ as part2;
 pub use part2::part2;
 
+use regex::Regex;
+use std::{
+    collections::{BTreeSet, HashMap},
+    ops::RangeInclusive,
+};
 
 #[derive(Clone, Debug)]
 pub(crate) struct Inputs {
@@ -22,7 +26,8 @@ impl Inputs {
             from: String::from(from),
             to: String::from(to),
         };
-        let mappings = self.maps
+        let mappings = self
+            .maps
             .get(&stages)
             .expect(format!("Expect to have a mapping from '{}' to '{}'", from, to).as_str());
         Mapper {
@@ -30,20 +35,13 @@ impl Inputs {
             numeric_mappings: mappings.to_vec(),
         }
     }
-
-    pub(crate) fn edge_points(&self) -> Vec<i64> {
-        self.maps.values().flat_map(|nms| nms.iter().flat_map(|nm| nm.edge_points())).collect()
-    }
 }
 
 impl From<&Vec<String>> for Inputs {
     fn from(lines: &Vec<String>) -> Self {
         assert!(lines[0].starts_with("seeds:"));
         let list_re = Regex::new(r"(\d+)").unwrap();
-        let seeds = list_re
-            .find_iter(&lines[0])
-            .map(|n| n.as_str().parse::<i64>().unwrap())
-            .collect::<Vec<_>>();
+        let seeds = list_re.find_iter(&lines[0]).map(|n| n.as_str().parse::<i64>().unwrap()).collect::<Vec<_>>();
 
         let map_key_re = Regex::new(r"(\w+)-to-(\w+) map:").unwrap();
         let map_values_re = Regex::new(r"^(\d+) (\d+) (\d+)$").unwrap();
@@ -88,34 +86,44 @@ impl From<&Vec<String>> for Inputs {
     }
 }
 
-
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub(crate) struct NumericMapping {
-    pub(crate) range: core::ops::RangeInclusive<i64>,
-    pub(crate) offset: i64,
+    inlet_range: RangeInclusive<i64>,
+    outlet_range: RangeInclusive<i64>,
+    offset: i64,
 }
 
 impl NumericMapping {
     pub fn new(to: i64, from: i64, size: i64) -> Self {
-        let range = from..=(from + size - 1);
+        let offset = to - from;
         Self {
-            range: range.clone(),
-            offset: to - from,
+            inlet_range: from..=(from + size - 1),
+            outlet_range: (from + offset)..=(from + size - 1 + offset),
+            offset,
         }
     }
     pub fn map(&self, value: i64) -> Option<i64> {
-        if self.range.contains(&value) {
+        if self.inlet_range.contains(&value) {
             Some(value + self.offset)
         } else {
             None
         }
     }
-    pub fn edge_points(&self) -> Vec<i64> {
-        vec![*self.range.start(), *self.range.end()]
+    pub fn map_reverse(&self, value: i64) -> Option<i64> {
+        if self.outlet_range.contains(&value) {
+            Some(value - self.offset)
+        } else {
+            None
+        }
+    }
+    pub fn inlet_edge_points(&self) -> Vec<i64> {
+        vec![*self.inlet_range.start(), *self.inlet_range.end()]
+    }
+    pub fn outlet_edge_points(&self) -> Vec<i64> {
+        vec![*self.outlet_range.start(), *self.outlet_range.end()]
     }
 }
-
 
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
 pub(crate) struct StageMapping {
@@ -125,11 +133,17 @@ pub(crate) struct StageMapping {
 
 pub(crate) struct Mapper {
     #[allow(dead_code)]
-    pub(crate) stages: StageMapping,
-    pub(crate) numeric_mappings: Vec<NumericMapping>,
+    stages: StageMapping,
+    numeric_mappings: Vec<NumericMapping>,
 }
 
 impl Mapper {
+    pub(crate) fn new(stages: StageMapping, numeric_mappings: Vec<NumericMapping>) -> Self {
+        Self {
+            stages,
+            numeric_mappings,
+        }
+    }
     pub(crate) fn map(&self, input: i64) -> i64 {
         for mapping in &self.numeric_mappings {
             let mapped = mapping.map(input);
@@ -139,8 +153,27 @@ impl Mapper {
         }
         input
     }
-}
+    pub(crate) fn map_reverse(&self, input: i64) -> i64 {
+        for mapping in &self.numeric_mappings {
+            let mapped = mapping.map_reverse(input);
+            if let Some(result) = mapped {
+                return result;
+            }
+        }
+        input
+    }
 
+    pub(crate) fn inlet_edge_points(&self) -> BTreeSet<i64> {
+        self.numeric_mappings.iter().flat_map(|nm| nm.inlet_edge_points()).collect()
+    }
+    pub(crate) fn outlet_edge_points(&self) -> BTreeSet<i64> {
+        self.numeric_mappings.iter().flat_map(|nm| nm.outlet_edge_points()).collect()
+    }
+
+    fn outlet_ranges(&self) -> Vec<RangeInclusive<i64>> {
+        self.numeric_mappings.iter().map(|nr| nr.outlet_range.clone()).collect()
+    }
+}
 
 pub(crate) struct Mappings {
     mappers: Vec<Mapper>,
@@ -154,13 +187,39 @@ impl Mappings {
     pub(crate) fn map(&self, value: i64) -> i64 {
         self.mappers.iter().fold(value, |value, mapper| mapper.map(value))
     }
+
+    pub(crate) fn map_reverse(&self, value: i64) -> i64 {
+        self.mappers.iter().rev().fold(value, |value, mapper| mapper.map_reverse(value))
+    }
+
+    pub(crate) fn inlet_edge_points(&self) -> BTreeSet<i64> {
+        self.mappers.iter().flat_map(|nms| nms.inlet_edge_points()).collect()
+    }
+
+    pub(crate) fn outlet_edge_points(&self) -> BTreeSet<i64> {
+        self.mappers.iter().flat_map(|nms| nms.outlet_edge_points()).collect()
+    }
+
+    pub(crate) fn outlet_ranges(&self) -> Vec<RangeInclusive<i64>> {
+        self.mappers.iter().flat_map(|nms| nms.outlet_ranges()).collect()
+    }
+
 }
 
 impl From<&Inputs> for Mappings {
     fn from(inputs: &Inputs) -> Self {
-        let stages = ["seed", "soil", "fertilizer", "water", "light", "temperature", "humidity", "location"];
+        let stages = [
+            "seed",
+            "soil",
+            "fertilizer",
+            "water",
+            "light",
+            "temperature",
+            "humidity",
+            "location",
+        ];
         Self {
-            mappers: stages.windows(2).map(|pair| inputs.get_mapper_for(pair[0], pair[1])).collect()
+            mappers: stages.windows(2).map(|pair| inputs.get_mapper_for(pair[0], pair[1])).collect(),
         }
     }
 }
