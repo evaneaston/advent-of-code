@@ -9,10 +9,7 @@ pub use part1::part1;
 pub use part2::part2;
 
 use regex::Regex;
-use std::{
-    collections::{BTreeSet, HashMap},
-    ops::RangeInclusive,
-};
+use std::{collections::HashMap, ops::RangeInclusive};
 
 #[derive(Clone, Debug)]
 pub(crate) struct Inputs {
@@ -117,12 +114,6 @@ impl NumericMapping {
             None
         }
     }
-    pub fn inlet_edge_points(&self) -> Vec<i64> {
-        vec![*self.inlet_range.start(), *self.inlet_range.end()]
-    }
-    pub fn outlet_edge_points(&self) -> Vec<i64> {
-        vec![*self.outlet_range.start(), *self.outlet_range.end()]
-    }
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
@@ -138,12 +129,6 @@ pub(crate) struct Mapper {
 }
 
 impl Mapper {
-    pub(crate) fn new(stages: StageMapping, numeric_mappings: Vec<NumericMapping>) -> Self {
-        Self {
-            stages,
-            numeric_mappings,
-        }
-    }
     pub(crate) fn map(&self, input: i64) -> i64 {
         for mapping in &self.numeric_mappings {
             let mapped = mapping.map(input);
@@ -161,13 +146,6 @@ impl Mapper {
             }
         }
         input
-    }
-
-    pub(crate) fn inlet_edge_points(&self) -> BTreeSet<i64> {
-        self.numeric_mappings.iter().flat_map(|nm| nm.inlet_edge_points()).collect()
-    }
-    pub(crate) fn outlet_edge_points(&self) -> BTreeSet<i64> {
-        self.numeric_mappings.iter().flat_map(|nm| nm.outlet_edge_points()).collect()
     }
 
     fn outlet_ranges(&self) -> Vec<RangeInclusive<i64>> {
@@ -192,18 +170,9 @@ impl Mappings {
         self.mappers.iter().rev().fold(value, |value, mapper| mapper.map_reverse(value))
     }
 
-    pub(crate) fn inlet_edge_points(&self) -> BTreeSet<i64> {
-        self.mappers.iter().flat_map(|nms| nms.inlet_edge_points()).collect()
-    }
-
-    pub(crate) fn outlet_edge_points(&self) -> BTreeSet<i64> {
-        self.mappers.iter().flat_map(|nms| nms.outlet_edge_points()).collect()
-    }
-
     pub(crate) fn outlet_ranges(&self) -> Vec<RangeInclusive<i64>> {
         self.mappers.iter().flat_map(|nms| nms.outlet_ranges()).collect()
     }
-
 }
 
 impl From<&Inputs> for Mappings {

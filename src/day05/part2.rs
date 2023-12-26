@@ -17,39 +17,40 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let (inputs, mappings) = input_to_mappings(input)?;
     debug!("{:33} {:?}", "Seeds", inputs.seeds);
 
-    let seed_ranges: Vec<RangeInclusive<i64>> = inputs
-        .seeds
-        .chunks(2)
-        .map(|vals| RangeInclusive::new(vals[0], vals[0] + vals[1]))
-        .collect::<Vec<_>>();
+    // let seed_ranges: Vec<RangeInclusive<i64>> = inputs
+    //     .seeds
+    //     .chunks(2)
+    //     .map(|vals| RangeInclusive::new(vals[0], vals[0] + vals[1]))
+    //     .collect::<Vec<_>>();
+    // debug!("{:33} {:?}", "Seed Ranges", seed_ranges);
+
+    // let seed_and_outlet_ranges: Ranges<i64> = Ranges::from(seed_ranges.iter().chain(mappings.outlet_ranges().iter()).cloned().collect::<Vec<_>>());
+    // debug!("{:33} {:?}", "All Ranges To Check", seed_and_outlet_ranges);
+
+    // let seed_rangess = Ranges::from(seed_ranges);
+
+    let seed_ranges = Ranges::from(
+        inputs
+            .seeds
+            .chunks(2)
+            .map(|vals| RangeInclusive::new(vals[0], vals[0] + vals[1]))
+            .collect::<Vec<_>>(),
+    );
     debug!("{:33} {:?}", "Seed Ranges", seed_ranges);
 
-    let outlet_edge_points = mappings.outlet_edge_points();
-    debug!("{:33} {:?}", "Mappings Outlet Edge Points", outlet_edge_points);
+    let seed_and_outlet_ranges: Ranges<i64> = seed_ranges.clone().union(Ranges::from(
+        mappings.outlet_ranges().iter().cloned().collect::<Vec<_>>(),
+    ));
+    debug!("{:33} {:?}", "Seed and outlet ranges", seed_and_outlet_ranges);
 
-    let all_ranges: Vec<RangeInclusive<i64>> =
-        seed_ranges.iter().chain(mappings.outlet_ranges().iter()).cloned().collect();
-    debug!("{:33} {:?}", "All Ranges", all_ranges);
+    let min = seed_and_outlet_ranges.as_ref().into_iter().flat_map(|gr| gr.into_iter()).find(|&end_point| {
+        let start_point = mappings.map_reverse(end_point);
+        let in_seeds = seed_ranges.contains(&start_point);
+        debug!("   end: {end_point}, start: {start_point}, in_seeds={in_seeds}");
+        in_seeds
+    });
 
-    let all_ranges_to_check: Ranges<i64> = Ranges::from(all_ranges);
-    debug!("{:33} {:?}", "All Ranges To Check", all_ranges_to_check);
-
-    let seed_rangess = Ranges::from(seed_ranges);
-
-    let mut min = i64::MAX;
-    'outer: for rs in all_ranges_to_check.as_ref() {
-        for i in rs.into_iter() {
-            let back_mapping = mappings.map_reverse(i);
-            let in_seeds = seed_rangess.contains(&back_mapping);
-            debug!("   end: {i}, start: {back_mapping}, in_seeds={in_seeds}");
-            if in_seeds {
-                min = i;
-                break 'outer;
-            }
-        }
-    }
-
-    Ok(min.to_string())
+    Ok(min.unwrap().to_string())
 }
 
 #[cfg(test)]
