@@ -1,63 +1,66 @@
-use std::{collections::HashSet};
+use std::collections::HashSet;
 
 use crate::{grid::Grid, AocError, DailyInput, RowCol};
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
+    calc(input, 1)
+}
+
+pub fn part2(input: DailyInput) -> Result<String, AocError> {
+    calc(input, 1000000-1)
+}
+
+fn shortest_path(
+    start: RowCol,
+    end: RowCol,
+    rows_to_expand: &[i64],
+    cols_to_expand: &[i64],
+    expand_by: usize,
+) -> usize {
+    let base_distance = ((end.col() - start.col()).abs() + (end.row() - start.row()).abs()) as usize;
+
+    let row_range = start.row().min(end.row())..start.row().max(end.row());
+    let crossed_rows = rows_to_expand.iter().filter(|&r| row_range.contains(r)).collect::<Vec<_>>();
+    let crossed_rows_to_expand = crossed_rows.len();
+
+    let col_range = start.col().min(end.col())..start.col().max(end.col());
+    let crossed_cols = cols_to_expand.iter().filter(|&c| col_range.contains(c)).collect::<Vec<_>>();
+    let crossed_cols_to_expand = crossed_cols.len();
+
+
+    // println!("    {} -> {}", start, end);
+    // println!("       rte crossed = {crossed_rows_to_expand} ({:?})", crossed_rows);
+    // println!("       cte crossed = {crossed_cols_to_expand} ({:?})", crossed_cols);
+    base_distance + (crossed_cols_to_expand + crossed_rows_to_expand) * expand_by
+}
+
+pub fn calc(input: DailyInput, expand_by: usize) -> Result<String, AocError> {
     let lines = input.get_input_lines()?;
-    let mut grid = Grid::new(&lines);
+    let grid = Grid::new(&lines);
 
-    let grid = double_empty_rows_and_cols(&mut grid);
+//    println!("Grid: {grid}");
 
-    println!("Grid: {grid}");
-    let binding = grid.find(HashSet::from([b'#']));
-    let found = binding.get(&b'#').expect("Should have found some #s");
-    println!("Found at {:?}", found);
+    let rows_to_expand = grid.rows().filter(|&row| grid.get_row(row).unwrap().all(|v| v == b'.')).collect::<Vec<_>>();
+    // println!("rows to expand {:?}", rows_to_expand);
 
+    let cols_to_expand = grid.cols().filter(|&col| grid.get_col(col).unwrap().all(|v| v == b'.')).collect::<Vec<_>>();
+    // println!("cols to expand {:?}", cols_to_expand);
+
+    let galaxies = grid.find(HashSet::from([b'#']));
+    let found = galaxies.get(&b'#').expect("Should have found some #s");
+    // println!("Galaxies found at {:?}", found);
     let sum: usize = (0..found.len())
-        .flat_map(|a| {
-            (a + 1..found.len()).map(move |b| {
-                let c = shortest_path(found[a], found[b]);
-                println!("{a} -> {b} = {c}");
-                c
-            })
-        })
+        .flat_map(|a| (a + 1..found.len()).map(move |b| (a, b)))
+        .map(|(a, b)| shortest_path(found[a], found[b], &rows_to_expand, &cols_to_expand, expand_by))
         .sum();
 
     Ok(sum.to_string())
 }
 
-fn shortest_path(start: RowCol, end: RowCol) -> usize {
-    ((end.col() - start.col()).abs() + (end.row() - start.row()).abs()) as usize
-}
-
-fn double_empty_rows_and_cols(grid: &mut Grid) -> Grid {
-    double_empty_rows(grid);
-    let mut grid = grid.transpose();
-    double_empty_rows(&mut grid);
-    grid.transpose()
-}
-
-fn double_empty_rows(grid: &mut Grid) {
-    let rows_to_dup = grid.rows().filter(|&row| grid.get_row(row).unwrap().all(|c| c == b'.')).collect::<Vec<_>>();
-    println!("Rows to duplicate: {:?}", rows_to_dup);
-    for (i, row) in rows_to_dup.iter().enumerate() {
-        let row = row + i as i64;
-        grid.insert_row_after(row);
-        for col in grid.cols() {
-            grid.set(RowCol(row, col + 1), b'.');
-        }
-    }
-}
-
-pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    input.get_input_as_single_string()?;
-    Ok("".to_string())
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
-        day11::{part1, part2},
+        day11::{calc, part1, part2},
         DailyInput, InputType,
     };
 
@@ -89,15 +92,13 @@ mod test {
 
     #[test]
     fn test_part2_example() {
-        assert_eq!(
-            part2(DailyInput {
-                day: 11,
-                input_type: InputType::Example,
-                number: None,
-            })
-            .unwrap(),
-            ""
-        );
+        let input = DailyInput {
+            day: 11,
+            input_type: InputType::Example,
+            number: None,
+        };
+        assert_eq!(calc(input.clone(), 10-1).unwrap(), "1030");
+        assert_eq!(calc(input, 100-1).unwrap(), "8410");
     }
 
     #[test]
@@ -109,7 +110,7 @@ mod test {
                 number: None,
             })
             .unwrap(),
-            ""
+            "702770569197"
         );
     }
 }

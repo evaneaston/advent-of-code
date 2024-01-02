@@ -1,5 +1,5 @@
-pub(crate) mod nums;
 mod grid;
+pub(crate) mod nums;
 
 seq!(N in 1..=9 {
    mod day0~N;
@@ -83,11 +83,13 @@ pub enum AocError {
     // OutOfRange(String),
 }
 
+#[derive(Clone)]
 pub enum InputType {
     #[allow(dead_code)]
     Example,
     Challenge,
 }
+#[derive(Clone)]
 pub struct DailyInput {
     pub day: usize,
     pub input_type: InputType,
@@ -118,10 +120,7 @@ impl DailyInput {
     }
 
     pub fn get_input_lines(&self) -> Result<Vec<String>, Error> {
-        Ok(BufReader::new(self.get_input_file()?)
-            .lines()
-            .collect::<Result<Vec<String>, _>>()
-            .unwrap())
+        Ok(BufReader::new(self.get_input_file()?).lines().collect::<Result<Vec<String>, _>>().unwrap())
     }
 
     pub fn get_input_as_single_string(&self) -> Result<String, Error> {
@@ -211,7 +210,6 @@ pub fn enable_logging() -> Result<(), AocError> {
     Ok(())
 }
 
-
 pub(crate) fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
 where
     T: Eq + PartialEq + std::hash::Hash,
@@ -221,7 +219,6 @@ where
         acc
     })
 }
-
 
 #[cfg(test)]
 mod tests {
