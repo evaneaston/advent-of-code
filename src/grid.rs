@@ -4,7 +4,7 @@ use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
     iter::repeat,
-    ops::{Range, RangeInclusive},
+    ops::{Range, RangeInclusive}, hash::Hasher,
 };
 
 use crate::RowCol;
@@ -168,8 +168,14 @@ impl Grid {
         }
     }
 
+    fn row_col_for_index(&self, data_index: usize) -> RowCol {
+        let col = data_index % self.cols;
+        let row = (data_index - col) / self.cols;
+        RowCol::new(row as i64, col as i64)
+    }
     /**
-     * Search for all occurrences of any of the chars, returning them all in a HashMap with values containing all of their [RowCol] (no specific ordering).
+     * Search for all occurrences of any of the chars, returning them all in a HashMap with values containing all of their [RowCol].
+     * Each character's vector will be ordered top-down, left-to-right.
      */
     pub fn find(&self, chars: HashSet<u8>) -> HashMap<u8, Vec<RowCol>> {
         let mut result: HashMap<u8, Vec<RowCol>> = HashMap::new();
@@ -177,13 +183,11 @@ impl Grid {
         for index in 0..self.data.len() {
             let b = self.data[index];
             if chars.contains(&b) {
-                let col = index % self.cols;
-                let row = (index - col) / self.cols;
-                let pos = RowCol::new(row as i64, col as i64);
+                let rc = self.row_col_for_index(index);
                 if let Some(vec) = result.get_mut(&b) {
-                    vec.push(pos);
+                    vec.push(rc);
                 } else {
-                    result.insert(b, Vec::from([pos]));
+                    result.insert(b, Vec::from([rc]));
                 }
             }
         }
@@ -326,6 +330,10 @@ impl Grid {
             None
         }
     }
+
+    pub fn hash(&self, hasher: &mut dyn Hasher) {
+        hasher.write(&self.data);
+    }
 }
 
 impl Display for Grid {
@@ -349,6 +357,7 @@ impl Display for Grid {
         Ok(())
     }
 }
+
 
 #[cfg(test)]
 mod tests {
