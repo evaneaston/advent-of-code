@@ -17,18 +17,6 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let (inputs, mappings) = input_to_mappings(input)?;
     debug!("{:33} {:?}", "Seeds", inputs.seeds);
 
-    // let seed_ranges: Vec<RangeInclusive<i64>> = inputs
-    //     .seeds
-    //     .chunks(2)
-    //     .map(|vals| RangeInclusive::new(vals[0], vals[0] + vals[1]))
-    //     .collect::<Vec<_>>();
-    // debug!("{:33} {:?}", "Seed Ranges", seed_ranges);
-
-    // let seed_and_outlet_ranges: Ranges<i64> = Ranges::from(seed_ranges.iter().chain(mappings.outlet_ranges().iter()).cloned().collect::<Vec<_>>());
-    // debug!("{:33} {:?}", "All Ranges To Check", seed_and_outlet_ranges);
-
-    // let seed_rangess = Ranges::from(seed_ranges);
-
     let seed_ranges = Ranges::from(
         inputs
             .seeds
@@ -39,11 +27,11 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     debug!("{:33} {:?}", "Seed Ranges", seed_ranges);
 
     let seed_and_outlet_ranges: Ranges<i64> = seed_ranges.clone().union(Ranges::from(
-        mappings.outlet_ranges().iter().cloned().collect::<Vec<_>>(),
+        mappings.outlet_ranges().to_vec(),
     ));
     debug!("{:33} {:?}", "Seed and outlet ranges", seed_and_outlet_ranges);
 
-    let min = seed_and_outlet_ranges.as_ref().into_iter().flat_map(|gr| gr.into_iter()).find(|&end_point| {
+    let min = seed_and_outlet_ranges.as_ref().iter().flat_map(|gr| gr.into_iter()).find(|&end_point| {
         let start_point = mappings.map_reverse(end_point);
         let in_seeds = seed_ranges.contains(&start_point);
         debug!("   end: {end_point}, start: {start_point}, in_seeds={in_seeds}");
@@ -81,6 +69,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::single_range_in_vec_init)]
     fn test_range_subtract() {
         assert_eq!(r(1..10).difference(r(-5..0)), r(1..10));
         assert_eq!(r(1..10).difference(r(-5..1)), r(1..10));
@@ -97,6 +86,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::single_range_in_vec_init)]
     fn test_range_intersect() {
         assert_eq!(r(1..10).intersect(r(-5..0)), Ranges::new());
         assert_eq!(r(1..10).intersect(r(-5..1)), Ranges::from(vec![1..1]));

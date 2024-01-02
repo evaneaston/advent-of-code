@@ -4,8 +4,7 @@ use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
     iter::repeat,
-    ops::Range,
-    slice::Iter,
+    ops::{Range, RangeInclusive},
 };
 
 use crate::RowCol;
@@ -105,18 +104,6 @@ impl Grid {
         self._set(rc, value);
     }
 
-    // pub fn try_set(&mut self, rc: RowCol, value: u8) -> Result<(), AocError> {
-    //     if !self.is_in_window(rc) {
-    //         return Err(AocError::OutOfRange(format!(
-    //             "Set at {:?} outside of range {:?}..={:?}",
-    //             rc, self.min, self.max
-    //         )));
-    //     }
-
-    //     self._set(rc, value);
-    //     Ok(())
-    // }
-
     fn is_in_window(&self, rc: RowCol) -> bool {
         !(rc.row() < self.min.row()
             && rc.row() > self.max.row()
@@ -160,9 +147,7 @@ impl Grid {
     }
 
     fn index_of(&self, zero_based_rc: RowCol) -> usize {
-        (zero_based_rc.row() * self.cols as i64 + zero_based_rc.col())
-            .try_into()
-            .unwrap()
+        (zero_based_rc.row() * self.cols as i64 + zero_based_rc.col()).try_into().unwrap()
     }
 
     pub fn fill_horizontal(&mut self, row: i64, col_range: Range<i64>, fill_with: u8) {
@@ -238,6 +223,14 @@ impl Grid {
         self.max.col()
     }
 
+    pub fn rows(&self) -> RangeInclusive<i64> {
+        self.min_row()..=self.max_row()
+    }
+
+    pub fn cols(&self) -> RangeInclusive<i64> {
+        self.min_col()..=self.max_col()
+    }
+
     pub fn log_moves_over_self(&self, level: Level, path: &Vec<RowCol>) {
         if log_enabled!(level) {
             let mut log_grid = self.clone();
@@ -274,6 +267,18 @@ impl Grid {
         }
     }
 
+    pub fn insert_row_after(&mut self, row: i64) {
+        if row < self.min_row() || row > self.max_row() {
+            panic!("Row {row} outside of range {}..={}", self.min_row(), self.max_row());
+        }
+        self.data.extend_from_within(self.row_offset_range(self.max_row()));
+        let range = self.row_start_offset(row)..self.row_start_offset(self.max_row());
+        let target = self.row_start_offset(row + 1);
+        self.data.copy_within(range, target);
+        self.rows += 1;
+        self.max = self.max.plus_row();
+    }
+
     pub fn transpose(&self) -> Self {
         let mut new_data = vec![0; self.data.len()];
         self.data.iter().enumerate().for_each(|(index, v)| {
@@ -291,17 +296,32 @@ impl Grid {
         }
     }
 
-    pub fn get_row(&self, row_number: i64) -> Option<Iter<u8>> {
-        //println!("get_row({row_number}");
+    pub fn get_row(&self, row_number: i64) -> Option<impl DoubleEndedIterator<Item = u8> + '_> {
         if row_number >= self.min_row() && row_number <= self.max_row() {
-            //println!("  minrow={}, maxrow={} col_count={}", self.min_row(), self.max_row(), self.col_count());
-            let row_offset = (row_number - self.min_row()) as usize;
-            // println!("  row offset={row_offset}");
-            let start: usize = row_offset * self.col_count();
-            // println!("  start={start}");
-            let end: usize = (row_offset + 1) * self.col_count();
-            // println!("  end={end}");
-            Some(self.data[start..end].iter())
+            Some(self.data[self.row_offset_range(row_number)].iter().copied())
+        } else {
+            None
+        }
+    }
+
+    fn row_start_offset(&self, row_number: i64) -> usize {
+        (row_number - self.min_row()) as usize * self.col_count()
+    }
+
+    fn row_end_offset(&self, row_number: i64) -> usize {
+        self.row_start_offset(row_number) + self.col_count() - 1
+    }
+
+    fn row_offset_range(&self, row_number: i64) -> RangeInclusive<usize> {
+        self.row_start_offset(row_number)..=self.row_end_offset(row_number)
+    }
+
+    pub fn get_col(&self, col_number: i64) -> Option<impl Iterator<Item = u8> + '_> {
+        if col_number >= self.min_col() && col_number <= self.max_col() {
+            let start = (col_number - self.min_col()) as usize;
+            let step = self.cols;
+            let end: usize = start + (self.rows - 1) * step;
+            Some((start..=end).step_by(step).map(move |offset| self.data[offset]))
         } else {
             None
         }
@@ -323,10 +343,7 @@ impl Display for Grid {
             writeln!(
                 f,
                 "{}",
-                self.data[start..(start + self.cols)]
-                    .iter()
-                    .map(|n| *n as char)
-                    .collect::<String>()
+                self.data[start..(start + self.cols)].iter().map(|n| *n as char).collect::<String>()
             )?;
         }
         Ok(())
@@ -335,8 +352,8 @@ impl Display for Grid {
 
 #[cfg(test)]
 mod tests {
-    use log::debug;
     use crate::grid::Grid;
+    use log::debug;
 
     #[test]
     fn test_raw() {

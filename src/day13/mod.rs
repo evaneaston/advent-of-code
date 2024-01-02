@@ -21,13 +21,8 @@ pub(crate) fn find_h_mirror_line(grid: &Grid, num_differences_allowed: usize) ->
         let after_range = row + 1..=row + num_to_compare;
 
         // println!("Comparing ranges {:?} and {:?}", before_range, after_range);
-        let above = before_range
-            .rev()
-            .flat_map(|r| grid.get_row(r).unwrap().rev())
-            .collect::<Vec<_>>();
-        let below = after_range
-            .flat_map(|r| grid.get_row(r).unwrap().rev())
-            .collect::<Vec<_>>();
+        let above = before_range.rev().flat_map(|r| grid.get_row(r).unwrap().rev()).collect::<Vec<_>>();
+        let below = after_range.flat_map(|r| grid.get_row(r).unwrap().rev()).collect::<Vec<_>>();
         // println!(" CMP {num_to_compare} around {row}:{}", row+1);
         // println!("      {:?} ", above.iter().map(|d| d.as_char()).collect::<String>());
         // println!("      {:?} ", below.iter().map(|d| d.as_char()).collect::<String>());
@@ -55,18 +50,8 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         .map(Vec::from)
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
-        .map(|(_index, grid)| {
-            // println!("Grid {index}");
-            // println!(" {}", grid);
-            let ml = find_all_mirror_lines_btree(&grid, 0);
-            // println!("  m: {:?}", ml);
-            ml
-        })
-        .map(|mlms| {
-            let miror_line = mlms.expect("No mirror lines found");
-            // println!("   {:?}", miror_line);
-            miror_line
-        })
+        .map(|(_index, grid)| find_all_mirror_lines_btree(&grid, 0))
+        .map(|mlms| mlms.expect("No mirror lines found"))
         .map(|mlm| match mlm {
             MirrorLineMatch::Vertical(mlm) => mlm.num_before,
             MirrorLineMatch::Horizontal(mlm) => mlm.num_before * 100,
@@ -85,18 +70,8 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         .map(Vec::from)
         .map(|lines_vec| Grid::new_offset(RowCol::new(1, 1), &lines_vec))
         .enumerate()
-        .map(|(_index, grid)| {
-            //println!("Grid {index}");
-            //println!(" {}", grid);
-            let ml = find_all_mirror_lines_btree(&grid, 1);
-            //println!("  m: {:?}", ml);
-            ml
-        })
-        .map(|mlms| {
-            let miror_line = mlms.expect("No mirror lines found");
-            //println!("   {:?}", miror_line);
-            miror_line
-        })
+        .map(|(_index, grid)| find_all_mirror_lines_btree(&grid, 1))
+        .map(|mlms| mlms.expect("No mirror lines found"))
         .map(|mlm| match mlm {
             MirrorLineMatch::Vertical(mlm) => mlm.num_before,
             MirrorLineMatch::Horizontal(mlm) => mlm.num_before * 100,

@@ -26,7 +26,7 @@ impl Inputs {
         let mappings = self
             .maps
             .get(&stages)
-            .expect(format!("Expect to have a mapping from '{}' to '{}'", from, to).as_str());
+            .unwrap_or_else(|| panic!("Expect to have a mapping from '{}' to '{}'", from, to));
         Mapper {
             stages,
             numeric_mappings: mappings.to_vec(),
