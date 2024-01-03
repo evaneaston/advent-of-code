@@ -6,7 +6,45 @@ use std::{
 
 use log::debug;
 
-use crate::{day10::Direction, grid::Grid, AocError, DailyInput, RowCol};
+use crate::{grid::Grid, AocError, DailyInput, RowCol};
+
+enum Direction {
+    N,
+    S,
+    E,
+    W,
+}
+impl Direction {
+    fn step(&self, rc: RowCol) -> RowCol {
+        match self {
+            Direction::E => rc.plus_col(),
+            Direction::S => rc.plus_row(),
+            Direction::W => rc.minus_col(),
+            Direction::N => rc.minus_row(),
+        }
+    }
+
+    fn cmp(&self, a: &RowCol, b: &RowCol) -> Ordering {
+        match self {
+            Direction::E => match b.col().cmp(&a.col()) {
+                Ordering::Equal => a.row().cmp(&b.row()),
+                cmp => cmp,
+            },
+            Direction::S => match b.row().cmp(&a.row()) {
+                Ordering::Equal => a.col().cmp(&b.col()),
+                cmp => cmp,
+            },
+            Direction::W => match a.col().cmp(&b.col()) {
+                Ordering::Equal => a.row().cmp(&b.row()),
+                cmp => cmp,
+            },
+            Direction::N => match a.row().cmp(&b.row()) {
+                Ordering::Equal => a.col().cmp(&b.col()),
+                cmp => cmp,
+            },
+        }
+    }
+}
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let mut grid = Grid::new(&input.get_input_lines()?);
@@ -32,35 +70,11 @@ fn tip(grid: &mut Grid, direction: Direction) {
     let found = grid.find(HashSet::from([b'O']));
     let o_s = found.get(&b'O').expect("Expected there to be some O's");
     let mut o_s = o_s.clone();
-    match direction {
-        Direction::E => o_s.sort_by(|a, b| match b.col().cmp(&a.col()) {
-            Ordering::Equal => a.row().cmp(&b.row()),
-            cmp => cmp,
-        }),
-        Direction::S => o_s.sort_by(|a, b| match b.row().cmp(&a.row()) {
-            Ordering::Equal => a.col().cmp(&b.col()),
-            cmp => cmp,
-        }),
-        Direction::W => o_s.sort_by(|a, b| match a.col().cmp(&b.col()) {
-            Ordering::Equal => a.row().cmp(&b.row()),
-            cmp => cmp,
-        }),
-        Direction::N => o_s.sort_by(|a, b| match a.row().cmp(&b.row()) {
-            Ordering::Equal => a.col().cmp(&b.col()),
-            cmp => cmp,
-        }),
-        _ => todo!(),
-    }
+    o_s.sort_by(|a, b| direction.cmp(a, b));
     for rc in o_s {
         let mut o_s_rc: RowCol = rc;
         'inner: loop {
-            let next_rc = match direction {
-                Direction::E => o_s_rc.plus_col(),
-                Direction::S => o_s_rc.plus_row(),
-                Direction::W => o_s_rc.minus_col(),
-                Direction::N => o_s_rc.minus_row(),
-                _ => todo!(),
-            };
+            let next_rc = direction.step(o_s_rc);
             if let Some(next) = grid.get(next_rc) {
                 if next == b'.' {
                     grid.set(next_rc, b'O');
@@ -116,7 +130,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let remaining = 1000000000 - cycle_end;
     let cycle_size = cycle_end - cycle_start;
     let div = remaining.div_euclid(cycle_size);
-    let mult = cycle_size*(div+1);
+    let mult = cycle_size * (div + 1);
     let rem = remaining.rem_euclid(mult);
     debug!("remaining={remaining}");
     debug!("div={div}");
@@ -126,7 +140,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     for (i, g) in grids.iter().enumerate() {
         debug!("Grid {} load: {}", i, load(g));
     }
-    let sum = load(&grids[cycle_start+ remaining.rem_euclid(cycle_size)]);
+    let sum = load(&grids[cycle_start + remaining.rem_euclid(cycle_size)]);
     Ok(sum.to_string())
 }
 
