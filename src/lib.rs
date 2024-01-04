@@ -9,6 +9,7 @@ seq!(N in 10..=25 {
 });
 
 use flexi_logger::Logger;
+use log::{debug, info};
 use nom::{bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult};
 use seq_macro::seq;
 use std::{
@@ -220,9 +221,97 @@ where
     })
 }
 
+// https://en.m.wikipedia.org/wiki/Shoelace_formula
+// 1/2 Σ i->n (x[i]* y[i+1] - x[i+1]*y[i])
+// this should work even if XY were changed to use non integers
+pub(crate) fn shoelace_area(vertices: &[XY]) -> f64 {
+    let mut sum = 0_f64;
+    for i in 0..vertices.len() {
+        let (v1, v2) = (
+            vertices[i],
+            if i == vertices.len() - 1 {
+                vertices[0]
+            } else {
+                vertices[i + 1]
+            },
+        );
+
+        sum += (v1.x() * v2.y() - v1.y() * v2.x()) as f64;
+    }
+    (sum / 2.).abs()
+}
+
+// https://en.wikipedia.org/wiki/Pick%27s_theorem
+//
+// Pick's   A = i + b/2 - 1
+//  A=area
+//  i=iterior points
+//  b=boundary points
+//
+// i= A+1-b/2
+// This only works with integer vertices
+pub(crate) fn get_num_interior_points(vertices: &[XY]) -> PicksResult {
+    let vertices = &vertices;
+    let area = shoelace_area(vertices);
+    println!(" shoelace area={area}");
+
+    let mut boundary_points_not_in_vertices = 0_usize;
+
+    let mut looped: Vec<XY> = Vec::from(*vertices);
+    looped.push(looped[0]);
+
+    for p in looped.windows(2) {
+        let a = p[0];
+        let b = p[1];
+        if a.x() == b.x() {
+            let num_missing = ((b.y() - a.y()).abs() - 1).max(0);
+            println!(" Between {:?} and {:?} there are {num_missing}", a, b);
+            boundary_points_not_in_vertices += num_missing as usize;
+        } else if a.y() == b.y() {
+            let num_missing = ((b.x() - a.x()).abs() - 1).max(0);
+            println!(" Between {:?} and {:?} there are {num_missing}", a, b);
+            boundary_points_not_in_vertices += num_missing as usize;
+        } else {
+            // todo if we ever need angled ones, find integer intersections
+            panic!("Assumed no angled edges");
+        }
+    }
+
+    println!(" boundary_points_not_in_vertices={boundary_points_not_in_vertices}");
+
+    let num_boundary_points = vertices.len() + boundary_points_not_in_vertices;
+    let num_interior_points = area + 1_f64 - num_boundary_points as f64 / 2.;
+
+    println!(" num_boundary_points={num_boundary_points}");
+    println!(" num_interior_points={num_interior_points}");
+
+    // num_interior_points.round() as i64
+    PicksResult {
+        shoelace_area: area,
+        num_boundary_points,
+        num_interior_points: num_interior_points.round() as usize,
+    }
+}
+
+#[derive(Debug)]
+struct PicksResult {
+    shoelace_area: f64,
+    num_boundary_points: usize,
+    num_interior_points: usize,
+}
+impl Display for PicksResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "boundary_points: {}, interior_points: {}, shoelace_area: {}",
+            self.num_boundary_points, self.num_interior_points, self.shoelace_area
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::RowCol;
+    use crate::{get_num_interior_points, shoelace_area, RowCol, XY};
 
     #[test]
     fn row_col_conversions_test() {
@@ -233,5 +322,52 @@ mod tests {
 
         let new_rc: RowCol = (1, 2).into();
         assert_eq!(new_rc, rc);
+    }
+
+    #[test]
+    fn test_shoelace_area() {
+        assert_eq!(
+            shoelace_area(&[
+                XY::new(1, 6),
+                XY::new(3, 1),
+                XY::new(7, 2),
+                XY::new(4, 4),
+                XY::new(8, 5),
+            ]),
+            16.5
+        );
+    }
+
+    #[test]
+    fn test_picks() {
+        // assert_eq!(
+        //     get_num_interior_points(&[
+        //         XY::new(1, 6),
+        //         XY::new(3, 1),
+        //         XY::new(7, 2),
+        //         XY::new(4, 4),
+        //         XY::new(8, 5),
+        //     ]),
+        //     15
+        // );
+
+        // day2 first example
+        assert_eq!(
+            get_num_interior_points(&[
+                XY::new(1, 1),
+                XY::new(9, 1),
+                XY::new(9, 7),
+                XY::new(6, 7),
+                XY::new(6, 5),
+                XY::new(8, 5),
+                XY::new(8, 2),
+                XY::new(2, 2),
+                XY::new(2, 5),
+                XY::new(4, 5),
+                XY::new(4, 7),
+                XY::new(1, 7)
+            ]).num_interior_points,
+            4
+        );
     }
 }
