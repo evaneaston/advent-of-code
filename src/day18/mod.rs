@@ -1,3 +1,5 @@
+use log::debug;
+
 use crate::{get_num_interior_points, AocError, DailyInput, RowCol, XY};
 
 #[derive(Debug)]
@@ -28,29 +30,8 @@ fn parse(line: &str) -> (Direction, usize, String) {
     )
 }
 
-fn build_trench(i: impl Iterator<Item = (Direction, usize)>) -> Vec<RowCol> {
-    let mut coords = i.fold(vec![RowCol::new(0, 0)], |mut acc, (direction, distance)| {
-        let closure: fn(RowCol) -> RowCol = match direction {
-            Direction::R => |rc| rc.plus_col(),
-            Direction::L => |rc| rc.minus_col(),
-            Direction::D => |rc| rc.plus_row(),
-            Direction::U => |rc| rc.minus_row(),
-        };
-        (0..distance).for_each(|_| {
-            let current = acc.last().unwrap();
-            let next = closure(*current);
-            acc.push(next)
-        });
-        acc
-    });
-    if coords.last() == coords.first() {
-        coords.remove(coords.len() - 1);
-    }
-    coords
-}
-
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let trench_rcs = build_trench2(
+    let trench_rcs = build_trench_vertices(
         input
             .get_input_lines()?
             .iter()
@@ -59,14 +40,14 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
     );
     let trench_xys = trench_rcs.iter().map(|&rc| XY::from(rc)).collect::<Vec<_>>();
     let picks = get_num_interior_points(&trench_xys);
-    println!(" {picks}");
+    debug!(" {picks}");
     let total = picks.num_interior_points + picks.num_boundary_points;
     Ok(total.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let lines = input.get_input_lines()?;
-    let trench_rcs = build_trench2(
+    let trench_rcs = build_trench_vertices(
         lines.iter().map(|line| parse(line)).map(|(_direction, _distance, color)| {
             assert_eq!(color.len(), 9);
             let distance = i64::from_str_radix(&color[2..7], 16).unwrap() as usize;
@@ -81,11 +62,9 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
             (direction, distance)
         }),
     );
-    println!("trench len ={}", trench_rcs.len());
-    println!("trench ={:?}", trench_rcs);
     let trench_xys = trench_rcs.iter().map(|&rc| XY::from(rc)).collect::<Vec<_>>();
     let picks = get_num_interior_points(&trench_xys);
-    println!(" {picks}");
+    debug!(" {picks}");
     let total = picks.num_interior_points + picks.num_boundary_points;
     Ok(total.to_string())
 }
@@ -98,7 +77,7 @@ fn stepper(direction: Direction) -> fn(RowCol) -> RowCol {
         Direction::U => |rc| rc.minus_row(),
     }
 }
-fn build_trench2(i: impl Iterator<Item = (Direction, usize)>) -> Vec<RowCol> {
+fn build_trench_vertices(i: impl Iterator<Item = (Direction, usize)>) -> Vec<RowCol> {
     let mut coords = i.fold(vec![RowCol::new(0, 0)], |mut acc, (direction, distance)| {
         let steppr = stepper(direction);
         let next_vertex = (0..distance).fold(*acc.last().unwrap(), |current, _| steppr(current));
@@ -140,7 +119,7 @@ mod test {
                 number: None,
             })
             .unwrap(),
-            ""
+            "40714"
         );
     }
 

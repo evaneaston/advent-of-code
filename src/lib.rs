@@ -9,7 +9,7 @@ seq!(N in 10..=25 {
 });
 
 use flexi_logger::Logger;
-use log::{debug, info};
+use log::debug;
 use nom::{bytes::complete::tag, character::complete::one_of, multi::many0, sequence::tuple, IResult};
 use seq_macro::seq;
 use std::{
@@ -70,6 +70,10 @@ pub enum AocError {
         #[from]
         source: nom::error::Error<&'static str>,
     },
+    #[error("Parse didn't read all input: {remaining}")]
+    ParseNotComplete { remaining: String },
+    #[error("Parse didn't succeed: {message} ")]
+    ParseFailed { message: String },
     #[error(transparent)]
     Log {
         #[from]
@@ -253,7 +257,7 @@ pub(crate) fn shoelace_area(vertices: &[XY]) -> f64 {
 pub(crate) fn get_num_interior_points(vertices: &[XY]) -> PicksResult {
     let vertices = &vertices;
     let area = shoelace_area(vertices);
-    println!(" shoelace area={area}");
+    debug!(" shoelace area={area}");
 
     let mut boundary_points_not_in_vertices = 0_usize;
 
@@ -265,11 +269,11 @@ pub(crate) fn get_num_interior_points(vertices: &[XY]) -> PicksResult {
         let b = p[1];
         if a.x() == b.x() {
             let num_missing = ((b.y() - a.y()).abs() - 1).max(0);
-            println!(" Between {:?} and {:?} there are {num_missing}", a, b);
+            debug!(" Between {:?} and {:?} there are {num_missing}", a, b);
             boundary_points_not_in_vertices += num_missing as usize;
         } else if a.y() == b.y() {
             let num_missing = ((b.x() - a.x()).abs() - 1).max(0);
-            println!(" Between {:?} and {:?} there are {num_missing}", a, b);
+            debug!(" Between {:?} and {:?} there are {num_missing}", a, b);
             boundary_points_not_in_vertices += num_missing as usize;
         } else {
             // todo if we ever need angled ones, find integer intersections
@@ -277,13 +281,13 @@ pub(crate) fn get_num_interior_points(vertices: &[XY]) -> PicksResult {
         }
     }
 
-    println!(" boundary_points_not_in_vertices={boundary_points_not_in_vertices}");
+    debug!(" boundary_points_not_in_vertices={boundary_points_not_in_vertices}");
 
     let num_boundary_points = vertices.len() + boundary_points_not_in_vertices;
     let num_interior_points = area + 1_f64 - num_boundary_points as f64 / 2.;
 
-    println!(" num_boundary_points={num_boundary_points}");
-    println!(" num_interior_points={num_interior_points}");
+    debug!(" num_boundary_points={num_boundary_points}");
+    debug!(" num_interior_points={num_interior_points}");
 
     // num_interior_points.round() as i64
     PicksResult {
@@ -366,7 +370,8 @@ mod tests {
                 XY::new(4, 5),
                 XY::new(4, 7),
                 XY::new(1, 7)
-            ]).num_interior_points,
+            ])
+            .num_interior_points,
             4
         );
     }

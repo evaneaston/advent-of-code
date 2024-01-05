@@ -254,10 +254,10 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
 
     assert!(vertices.first().unwrap().1 != vertices.last().unwrap().1);
 
-    let num_interior_points = get_num_interior_points(&vertices);
-    debug!(" num_interior_points={num_interior_points}");
+    let picks_result = get_num_interior_points(&vertices);
+    debug!(" num_interior_points={}", picks_result.num_interior_points);
 
-    Ok(num_interior_points.to_string())
+    Ok(picks_result.num_interior_points.to_string())
 }
 
 #[cfg(test)]
