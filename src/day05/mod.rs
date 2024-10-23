@@ -5,7 +5,6 @@ pub mod part2;
 mod tests;
 
 pub use part1::part1;
-//pub use part2::part2_ as part2;
 pub use part2::part2;
 
 use regex::Regex;
@@ -156,7 +155,6 @@ impl Mapper {
 pub(crate) struct Mappings {
     mappers: Vec<Mapper>,
 }
-
 impl Mappings {
     pub(crate) fn map_many(&self, input: &[i64]) -> Vec<i64> {
         input.iter().map(|v| self.map(*v)).collect()
