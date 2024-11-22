@@ -1,0 +1,27 @@
+[package]
+name = "aoc2022"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+strip = true
+
+[dependencies]
+flexi_logger = "0.24.2"
+log = "0.4.17"
+nom = "7.1.1"
+rand = "0.8.5"
+regex = "1.7.0"
+thiserror = "1.0.38"
