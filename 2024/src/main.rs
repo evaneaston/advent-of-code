@@ -1,5 +1,3 @@
-use aoc2023::{enable_logging, get_day_parts, AocError, DailyInput, DayPartFn, InputType};
-use regex::Regex;
 use std::{
     collections::BTreeSet,
     env,
@@ -7,23 +5,29 @@ use std::{
     time::{Duration, Instant},
 };
 
+use regex::Regex;
+
+use aoc2024::{AocError, DailyInput, DayPartFn, enable_logging, get_day_parts, InputType};
+
+/// cargo run -- day
+/// cargo run -- day,1
+/// cargo run -- day,2
 fn main() -> Result<(), AocError> {
     enable_logging()?;
 
-    let day_parts = get_day_parts();
-
     let start_all_time = Instant::now();
-    for DayPartFn { day, part, function } in find_parts_to_run(&day_parts) {
+    for DayPartFn { day, part, function } in find_parts_to_run() {
         print!("[Day {:2} Part {:2}]", day, part);
         stdout().flush()?;
         let start_time = Instant::now();
+
         let result = function(DailyInput {
-            day: *day,
+            day,
             input_type: InputType::Challenge,
             number: None,
         })?;
-        let day_part_duration: Duration = Instant::now() - start_time;
 
+        let day_part_duration: Duration = Instant::now() - start_time;
         println!(" in {} = {}", format_duration(&day_part_duration), result);
     }
     let total_duration: Duration = Instant::now() - start_all_time;
@@ -38,18 +42,20 @@ fn format_duration(duration: &Duration) -> String {
     format!("{:2}m {:2}.{:06}s", minutes, seconds, microseconds)
 }
 
-fn find_parts_to_run(day_parts: &[DayPartFn]) -> Vec<&DayPartFn> {
+fn find_parts_to_run() -> Vec<DayPartFn> {
+    let all_day_parts = get_day_parts();
+
     let args = env::args().collect::<Vec<_>>();
     let args = args.split_first().unwrap().1;
 
     if args.iter().any(|a| a == "all") {
-        day_parts.iter().collect()
+        all_day_parts.into_iter().collect()
     } else {
         if args.is_empty() {
             panic!("No arguments")
         }
 
-        let re = Regex::new(r"^([1-9]|1[0-9]|2[0-5])(,(1|2))?$").unwrap();
+        let re = Regex::new(r"^([1-9]|1[0-9]|2[0-5])(,([12]))?$").unwrap();
         let day_and_part_nums = args
             .iter()
             .enumerate()
@@ -68,8 +74,8 @@ fn find_parts_to_run(day_parts: &[DayPartFn]) -> Vec<&DayPartFn> {
             })
             .collect::<BTreeSet<_>>();
 
-        day_parts
-            .iter()
+        all_day_parts
+            .into_iter()
             .filter(|dp| day_and_part_nums.contains(&(dp.day, dp.part)))
             .collect::<Vec<_>>()
     }

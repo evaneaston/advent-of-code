@@ -9,7 +9,127 @@
     <cargoProject FILE="$PROJECT_DIR$/2024/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd050436-4c8c-41d0-ab01-c89af8173561" name="Changes" comment="" />
+    <list default="true" id="cd050436-4c8c-41d0-ab01-c89af8173561" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2022/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/2022/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2022/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/2022/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day01/day01.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day01/day01.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day01/inputs/day01-challenge.txt" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/algo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day01/inputs/day01-example1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/coord.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day01/inputs/day01-example2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/parse.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day01/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day02/day02.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day02/day02.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day02/inputs/day02-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day02/inputs/day02-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day02/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day03/day03.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day03/day03.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day03/inputs/day03-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day03/inputs/day03-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day03/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day04/day04.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day04/day04.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day04/inputs/day04-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day04/inputs/day04-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day04/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/day05.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day05/day05.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/inputs/day05-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/inputs/day05-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/part1.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/part2.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day05/tests.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/day06.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day06/day06.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/inputs/day06-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/inputs/day06-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/parse.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day06/tests.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/day07.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day07/day07.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/inputs/day07-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/inputs/day07-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/part1.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/part2.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day07/tests.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day08/day08.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day08/day08.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day08/inputs/day08-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day08/inputs/day08-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day08/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day09/day09.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day09/day09.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day09/inputs/day09-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day09/inputs/day09-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day09/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/day10.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day10/day10.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/inputs/day10-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/inputs/day10-example1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/inputs/day10-example2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/inputs/day10-example3.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day10/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day11/day11.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day11/day11.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day11/inputs/day11-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day11/inputs/day11-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day11/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day12/day12.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day12/day12.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day12/inputs/day12-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day12/inputs/day12-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day12/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day13/day13.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day13/day13.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day13/inputs/day13-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day13/inputs/day13-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day13/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day14/day14.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day14/day14.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day14/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day15/day15.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day15/day15.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day15/inputs/day15-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day15/inputs/day15-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day15/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day16/day16.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day16/day16.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day16/inputs/day16-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day16/inputs/day16-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day16/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day17/day17.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day17/day17.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day17/inputs/day17-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day17/inputs/day17-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day17/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day18/day18.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day18/day18.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day18/inputs/day18-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day18/inputs/day18-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day18/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/day19.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day19/day19.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/inputs/day19-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/inputs/day19-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/model.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day19/parse.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day20/day20.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day20/day20.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day20/inputs/day20-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day20/inputs/day20-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day20/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day21/day21.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day21/day21.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day21/inputs/day21-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day21/inputs/day21-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day21/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day22/day22.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day22/day22.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day22/inputs/day22-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day22/inputs/day22-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day22/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day23/day23.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day23/day23.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day23/inputs/day23-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day23/inputs/day23-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day23/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day24/day24.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day24/day24.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day24/inputs/day24-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day24/inputs/day24-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day24/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day25/day25.md" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/day25/day25.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day25/inputs/day25-challenge.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day25/inputs/day25-example.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/day25/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/grid.rs" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/grid.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/nums.rs" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,10 +142,13 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="kyn51rc8" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2pBhQdUgADWLov8j2UY3zSAgok1" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -34,8 +157,10 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Cargo.Run main.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/evan/workspace/advent-of-code/2024/src/day02",
     "node.js.detected.package.eslint": "true",
@@ -45,20 +170,26 @@
     "nodejs_package_manager_path": "npm",
     "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "org.rust.disableDetachedFileInspectionC:/Users/evan/workspace/advent-of-code/2024/src/day16/mod.rs": "true",
     "project.structure.last.edited": "Problems",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+    "settings.editor.selected.configurable": "inlay.hints"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\evan\workspace\advent-of-code\2024\src\day02" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\evan\workspace\advent-of-code\2024\src\day25" />
+    </key>
   </component>
-  <component name="RunManager">
+  <component name="RsExternalLinterProjectSettings">
+    <option name="tool" value="Clippy" />
+  </component>
+  <component name="RunManager" selected="Cargo.Test day01::test">
     <configuration name="Run main" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="dev" />
       <option name="command" value="run --package aoc2023 --bin main -- all" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/2023" />
       <envs />
@@ -75,14 +206,53 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test day01::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package aoc2024 --lib day01::test" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/2024" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test grid::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package aoc2024 --lib grid::tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/2024" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test day01::test" />
+        <item itemvalue="Cargo.Test grid::tests" />
         <item itemvalue="Cargo.Run main" />
       </list>
     </recent_temporary>
   </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="RustfmtProjectSettings">
+    <option name="useRustfmt" value="true" />
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -101,10 +271,16 @@
       <option name="presentableId" value="Default" />
       <updated>1732245365213</updated>
       <workItem from="1732245366310" duration="631000" />
+      <workItem from="1732288222966" duration="164000" />
+      <workItem from="1732288609618" duration="7203000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

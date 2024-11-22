@@ -1,13 +1,13 @@
+use crate::coord::RowCol;
 use flexi_logger::Level;
 use log::{log, log_enabled};
 use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
+    hash::Hasher,
     iter::repeat,
-    ops::{Range, RangeInclusive}, hash::Hasher,
+    ops::{Range, RangeInclusive},
 };
-
-use crate::RowCol;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid {
@@ -235,21 +235,21 @@ impl Grid {
         self.min_col()..=self.max_col()
     }
 
-    pub fn log_moves_over_self(&self, level: Level, path: &Vec<RowCol>) {
+    pub fn log_moves_over_self(&self, level: Level, path: &[RowCol]) {
         if log_enabled!(level) {
             let mut log_grid = self.clone();
             log_grid.log_moves(level, path);
         }
     }
 
-    pub fn log_moves_over_dots(&self, level: Level, path: &Vec<RowCol>) {
+    pub fn log_moves_over_dots(&self, level: Level, path: &[RowCol]) {
         if log_enabled!(level) {
             let mut log_grid = Grid::new_repeating(self.min(), self.max(), b'.');
             log_grid.log_moves(level, path);
         }
     }
 
-    fn log_moves(&mut self, level: Level, path: &Vec<RowCol>) {
+    fn log_moves(&mut self, level: Level, path: &[RowCol]) {
         if log_enabled!(level) {
             for i in 0..(path.len() - 1) {
                 let from = path[i];
@@ -357,7 +357,6 @@ impl Display for Grid {
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {

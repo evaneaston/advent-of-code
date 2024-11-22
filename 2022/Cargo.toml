@@ -19,9 +19,9 @@ lto = "fat"
 strip = true
 
 [dependencies]
-flexi_logger = "0.24.2"
-log = "0.4.17"
-nom = "7.1.1"
+flexi_logger = "0.29.6"
+log = "0.4.22"
+nom = "7.1.2"
 rand = "0.8.5"
-regex = "1.7.0"
-thiserror = "1.0.38"
+regex = "1.11.1"
+thiserror = "2.0.3"
