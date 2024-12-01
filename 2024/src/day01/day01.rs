@@ -31,10 +31,10 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         (c.get(1).unwrap().as_str().parse::<i64>().unwrap(), c.get(2).unwrap().as_str().parse::<i64>().unwrap())
     }).unzip();
 
-    let mut right_counts = HashMap::new();
-    for &num in &right {
-        *right_counts.entry(num).or_insert(0) += 1;
-    }
+    let right_counts = right.into_iter().fold(HashMap::new(), |mut map, num| {
+        *map.entry(num).or_insert(0) += 1;
+        map
+    });
 
     let sum: i64 = left.iter().map(|l| {
         match right_counts.get(l) {
