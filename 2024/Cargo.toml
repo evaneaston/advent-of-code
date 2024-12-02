@@ -21,6 +21,7 @@ debug = true
 
 [dependencies]
 flexi_logger = "0.27.3"
+itertools = "0.13.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
 nom = "7.1.1"
