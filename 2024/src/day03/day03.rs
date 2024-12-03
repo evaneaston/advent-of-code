@@ -1,11 +1,40 @@
 use crate::{AocError, DailyInput};
+use regex::Regex;
 
-pub fn part1(_input: DailyInput) -> Result<String, AocError> {
-    Ok("".to_string())
+pub fn part1(input: DailyInput) -> Result<String, AocError> {
+    let input = input.get_input_as_single_string()?;
+
+    let re = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
+    let mut answer = 0_i64;
+    for mat in re.captures_iter(&input) {
+        let a = mat[1].parse::<i64>().unwrap();
+        let b = mat[2].parse::<i64>().unwrap();
+        answer += a * b;
+    }
+
+    Ok(format!("{answer}"))
 }
 
-pub fn part2(_input: DailyInput) -> Result<String, AocError> {
-    Ok("".to_string())
+pub fn part2(input: DailyInput) -> Result<String, AocError> {
+    let input = input.get_input_as_single_string()?;
+
+    let mut active = true;
+
+    let re = Regex::new(r"(mul\((\d+),(\d+)\)|do\(\)|don\'t\(\))").unwrap();
+    let mut answer = 0_i64;
+    for mat in re.captures_iter(&input) {
+        if &mat[0] == "do()" {
+            active = true;
+        } else if &mat[0] == "don't()" {
+            active = false;
+        } else if active {
+            let a = mat[2].parse::<i64>().unwrap();
+            let b = mat[3].parse::<i64>().unwrap();
+            answer += a * b;
+        }
+    }
+
+    Ok(format!("{answer}"))
 }
 
 #[cfg(test)]
@@ -21,10 +50,10 @@ mod test {
             part1(DailyInput {
                 day: DAY,
                 input_type: InputType::Example,
-                number: None,
+                number: Some(1),
             })
-                .unwrap(),
-            ""
+            .unwrap(),
+            "161"
         );
     }
 
@@ -36,8 +65,8 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
-            ""
+            .unwrap(),
+            "174336360"
         );
     }
 
@@ -47,10 +76,10 @@ mod test {
             part2(DailyInput {
                 day: DAY,
                 input_type: InputType::Example,
-                number: None,
+                number: Some(2),
             })
-                .unwrap(),
-            ""
+            .unwrap(),
+            "48"
         );
     }
 
@@ -62,8 +91,8 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
-            ""
+            .unwrap(),
+            "88802350"
         );
     }
 }

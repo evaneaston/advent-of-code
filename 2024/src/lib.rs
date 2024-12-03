@@ -125,7 +125,7 @@ impl DailyInput {
             InputType::Challenge => "challenge",
         };
         let file_name = match self.number {
-            Some(number) => format!("src/{day}/.input-{qualifier}-{day}{number}.txt"),
+            Some(number) => format!("src/{day}/.input-{qualifier}-{day}-{number}.txt"),
             None => format!("src/{day}/.input-{qualifier}-{day}.txt"),
         };
         self.open_input_file(&file_name)
