@@ -4,23 +4,19 @@ use regex::Regex;
 
 use crate::{AocError, DailyInput};
 
-struct Day05Input(HashMap<i64, HashSet<i64>>, HashMap<i64, HashSet<i64>>, Vec<Vec<i64>>);
+struct Day05Input(HashMap<i64, HashSet<i64>>, Vec<Vec<i64>>);
 impl Day05Input {
-    fn befores(&self) -> &HashMap<i64, HashSet<i64>> {
+    fn afters(&self) -> &HashMap<i64, HashSet<i64>> {
         &self.0
     }
-    fn afters(&self) -> &HashMap<i64, HashSet<i64>> {
+    fn page_lists(&self) -> &Vec<Vec<i64>> {
         &self.1
-    }
-    fn pages(&self) -> &Vec<Vec<i64>> {
-        &self.2
     }
 }
 
 fn parse(input: &DailyInput) -> Day05Input {
     let lines = input.get_input_lines().unwrap();
 
-    let mut befores: HashMap<i64, HashSet<i64>> = HashMap::new();
     let mut afters: HashMap<i64, HashSet<i64>> = HashMap::new();
 
     let rules_re = Regex::new(r"^(\d+)\|(\d+)$").unwrap();
@@ -30,7 +26,6 @@ fn parse(input: &DailyInput) -> Day05Input {
         let before = c.get(1).unwrap().as_str().parse::<i64>().unwrap();
         let after = c.get(2).unwrap().as_str().parse::<i64>().unwrap();
         afters.entry(before).or_default().insert(after);
-        befores.entry(after).or_default().insert(before);
     });
     let pages = lines
         .iter()
@@ -38,7 +33,7 @@ fn parse(input: &DailyInput) -> Day05Input {
         .map(|line| line.split(',').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
-    Day05Input(befores, afters, pages)
+    Day05Input(afters, pages)
 }
 
 fn is_order_valid(input: &Day05Input, pages: &[i64]) -> bool {
@@ -46,15 +41,6 @@ fn is_order_valid(input: &Day05Input, pages: &[i64]) -> bool {
         if let Some(afters) = input.afters().get(&page) {
             for p in &pages[0..i] {
                 if afters.contains(p) {
-                    // eprintln!("BAD: {pages:?} {p} is before {page} when it shouldn't be");
-                    return false;
-                }
-            }
-        }
-        if let Some(befores) = input.befores().get(&page) {
-            for p in &pages[i + 1..pages.len()] {
-                if befores.contains(p) {
-                    // eprintln!("BAD: {pages:?} {p} is after {page} when it shouldn't be");
                     return false;
                 }
             }
@@ -70,7 +56,7 @@ fn middle(pages: &[i64]) -> i64 {
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let input = parse(&input);
     let answer = input
-        .2
+        .page_lists()
         .iter()
         .filter(|&pages| is_order_valid(&input, pages))
         .map(|pages| middle(pages))
@@ -84,24 +70,22 @@ fn reorder(input: &Day05Input, pages: &[i64]) -> Vec<i64> {
 
     let mut counter = 0;
     let mut retry = true;
-    while retry {
-        counter+= 1;
+    'outer: while retry {
+        counter += 1;
         if counter > 100 {
             panic!("This is not working");
         }
         retry = false;
-        // eprintln!("{copy:?}");
-        'reorder: for i in 0..copy.len() {
+        for i in 0..copy.len() {
             for j in i + 1..copy.len() {
                 let left = copy[i];
                 let right = copy[j];
                 if let Some(afters) = input.afters().get(&right) {
                     if afters.contains(&left) {
-                        // eprintln!("   Moving [{j}] {right} before [{i}] {left}");
                         copy.remove(j);
-                        copy.insert(i,right);
+                        copy.insert(i, right);
                         retry = true;
-                        break 'reorder;
+                        continue 'outer;
                     }
                 }
             }
@@ -113,15 +97,10 @@ fn reorder(input: &Day05Input, pages: &[i64]) -> Vec<i64> {
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let input = parse(&input);
     let answer = input
-        .2
+        .page_lists()
         .iter()
-        .filter_map(|pages| {
-            if is_order_valid(&input, pages) {
-                None
-            } else {
-                Some(reorder(&input, pages))
-            }
-        })
+        .filter(|pages| !is_order_valid(&input, pages))
+        .map(|pages| reorder(&input, pages))
         .map(|pages| middle(&pages))
         .sum::<i64>();
     Ok(format!("{answer}"))
@@ -136,6 +115,8 @@ mod test {
 
     #[test]
     fn test_middle() {
+        assert_eq!(middle(&[1]), 1);
+        assert_eq!(middle(&[1, 2, 3]), 2);
         assert_eq!(middle(&[1, 2, 3, 4, 5]), 3);
     }
 
