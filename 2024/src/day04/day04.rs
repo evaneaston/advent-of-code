@@ -1,52 +1,15 @@
-use crate::{coord::RowCol, grid::Grid, AocError, DailyInput};
+use crate::{
+    coord::{Direction, RowCol},
+    grid::Grid,
+    AocError, DailyInput,
+};
 use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter};
 
-#[derive(EnumIter, Debug, Display, Clone)]
-enum Direction {
-    N,
-    NE,
-    E,
-    SE,
-    S,
-    SW,
-    W,
-    NW,
-}
-impl Direction {
-    fn next(&self, rc: &RowCol) -> RowCol {
-        match self {
-            Direction::N => rc.minus_row(),
-            Direction::NE => rc.minus_row().plus_col(),
-            Direction::E => rc.plus_col(),
-            Direction::SE => rc.plus_row().plus_col(),
-            Direction::S => rc.plus_row(),
-            Direction::SW => rc.plus_row().minus_col(),
-            Direction::W => rc.minus_col(),
-            Direction::NW => rc.minus_row().minus_col(),
-        }
-    }
-}
-impl RowCol {
-    fn step(&self, direction: &Direction) -> RowCol {
-        direction.next(self)
-    }
-}
-
-fn is_xmas_match(grid: &Grid, rc: RowCol, direction: &Direction) -> bool {
-    if grid.get(rc) == Some(b'X') {
-        let rc = rc.step(&direction);
-        if grid.get(rc) == Some(b'M') {
-            let rc = rc.step(&direction);
-            if grid.get(rc) == Some(b'A') {
-                let rc = rc.step(&direction);
-                if grid.get(rc) == Some(b'S') {
-                    return true;
-                }
-            }
-        }
-    }
-    false
+fn is_xmas_match(grid: &Grid, rc: RowCol, direction: Direction) -> bool {
+    grid.get(rc) == Some(b'X')
+        && grid.get(rc.plus_n(&direction, 1)) == Some(b'M')
+        && grid.get(rc.plus_n(&direction, 2)) == Some(b'A')
+        && grid.get(rc.plus_n(&direction, 3)) == Some(b'S')
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
@@ -56,7 +19,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
     for r in grid.rows() {
         for c in grid.cols() {
             for d in Direction::iter() {
-                if is_xmas_match(&grid, RowCol::new(r, c), &d) {
+                if is_xmas_match(&grid, RowCol::new(r, c), d) {
                     count += 1;
                 }
             }
@@ -65,25 +28,17 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
     Ok(format!("{count}"))
 }
 
-impl Grid {
-    fn matches(&self, rc: &RowCol, dir: &Direction, v: u8) -> bool {
-        self.get(rc.step(dir)) == Some(v)
-    }
-}
-
 fn is_x_mas_match(grid: &Grid, rc: RowCol) -> bool {
     if grid.get(rc) == Some(b'A') {
-        let down_right = (grid.matches(&rc, &Direction::NW, b'M') && grid.matches(&rc, &Direction::SE, b'S'))
-            || (grid.matches(&rc, &Direction::NW, b'S') && grid.matches(&rc, &Direction::SE, b'M'));
+        let is_mas = |d1: Direction, d2: Direction| {
+            grid.get(rc.plus(&d1)) == Some(b'M') && grid.get(rc.plus(&d2)) == Some(b'S')
+        };
 
-        let up_right = (grid.matches(&rc, &Direction::SW, b'M') && grid.matches(&rc, &Direction::NE, b'S'))
-            || (grid.matches(&rc, &Direction::SW, b'S') && grid.matches(&rc, &Direction::NE, b'M'));
-
-        if down_right && up_right {
-            return true;
-        }
+        (is_mas(Direction::NW, Direction::SE) || is_mas(Direction::SE, Direction::NW))
+            && (is_mas(Direction::NE, Direction::SW) || is_mas(Direction::SW, Direction::NE))
+    } else {
+        false
     }
-    false
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {

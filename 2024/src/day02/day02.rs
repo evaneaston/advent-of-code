@@ -29,7 +29,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
     Ok(format!("{answer}"))
 }
 
-fn is_safe(report: &Vec<i64>) -> bool {
+fn is_safe(report: &[i64]) -> bool {
     let preprocessed = preprocess(report);
     preprocessed.iter().map(|(sign, _)| *sign).sum::<i64>().unsigned_abs() as usize == (report.len() - 1)
         && preprocessed.iter().all(|(_, abs_diff)| *abs_diff >= 1 && *abs_diff <= 3)

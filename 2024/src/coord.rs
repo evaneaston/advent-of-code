@@ -1,4 +1,17 @@
 use std::fmt::Display;
+use strum_macros::{Display, EnumIter};
+
+#[derive(EnumIter, Debug, Display, Clone)]
+pub enum Direction {
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW,
+}
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct RowCol(pub i64, pub i64);
@@ -15,6 +28,15 @@ impl RowCol {
     pub fn col(&self) -> i64 {
         self.1
     }
+    pub fn offset(&self, row_offset: i64, col_offset: i64) -> Self {
+        Self(self.row() + row_offset, self.col() + col_offset)
+    }
+    pub fn offset_row(&self, row_offset: i64) -> Self {
+        Self(self.row() + row_offset, self.col())
+    }
+    pub fn offset_col(&self, col_offset: i64) -> Self {
+        Self(self.row(), self.col() + col_offset)
+    }
     pub fn plus_row(&self) -> Self {
         Self(self.row() + 1, self.col())
     }
@@ -26,6 +48,21 @@ impl RowCol {
     }
     pub fn minus_col(&self) -> Self {
         Self(self.row(), self.col() - 1)
+    }
+    pub fn plus(&self, direction: &Direction) -> RowCol {
+        self.plus_n(direction, 1)
+    }
+    pub fn plus_n(&self, direction: &Direction, n: i64) -> RowCol {
+        match direction {
+            Direction::N => self.offset_row(-n),
+            Direction::NE => self.offset(-n, n),
+            Direction::E => self.offset_col(n),
+            Direction::SE => self.offset(n, n),
+            Direction::S => self.offset_row(n),
+            Direction::SW => self.offset(n, -n),
+            Direction::W => self.offset_col(-n),
+            Direction::NW => self.offset(-n, -n),
+        }
     }
 }
 impl Display for RowCol {
