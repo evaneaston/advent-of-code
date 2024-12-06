@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use strum_macros::{Display, EnumIter};
 
-#[derive(EnumIter, Debug, Display, Clone)]
+#[derive(EnumIter, Debug, Display, Clone, Copy, PartialEq,Eq, Hash)]
 pub enum Direction {
     N,
     NE,
@@ -11,6 +11,20 @@ pub enum Direction {
     SW,
     W,
     NW,
+}
+impl Direction {
+    pub fn cw_90(&self) -> Self {
+        match self {
+            Direction::N => Direction::E,
+            Direction::NE => Direction::SE,
+            Direction::E => Direction::S,
+            Direction::SE => Direction::SW,
+            Direction::S => Direction::W,
+            Direction::SW => Direction::NW,
+            Direction::W => Direction::N,
+            Direction::NW => Direction::NE,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
