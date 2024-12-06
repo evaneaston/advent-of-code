@@ -1,4 +1,4 @@
-use std::{collections::HashSet, process::Command};
+use std::{collections::HashSet, hash::Hash};
 
 use crate::{
     coord::{Direction, RowCol},
@@ -6,84 +6,73 @@ use crate::{
     AocError, DailyInput,
 };
 
-pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let mut g = Grid::new(&input.get_input_lines()?);
-    let locations = g.find(HashSet::from([b'^']));
-    let mut location = *locations.get(&b'^').unwrap().first().unwrap();
-    let mut direction = Direction::N;
-
+fn get_visited_locations(g: &Grid, starting_location: RowCol, starting_direction: Direction) -> HashSet<RowCol> {
+    let mut location = starting_location;
+    let mut direction = starting_direction;
     let mut visited_locations = HashSet::new();
     while g.get(location).is_some() {
         visited_locations.insert(location);
-        g.set(location, b'X');
 
-        eprintln!("{location}");
-        let maybe_next = location.plus(&direction);
-        match g.get(maybe_next) {
+        let ahead = location.plus(&direction);
+        match g.get(ahead) {
             Some(b'#') => direction = direction.cw_90(),
-            Some(_) => location = maybe_next,
+            Some(_) => location = ahead,
             None => break,
         }
     }
-    // eprintln!("{g}");
-    let answer = visited_locations.len();
+    visited_locations
+}
 
+fn starting_location(grid: &Grid) -> (RowCol, Direction) {
+    (*grid.find(HashSet::from([b'^'])).get(&b'^').unwrap().first().unwrap(), Direction::N)
+}
+
+pub fn part1(input: DailyInput) -> Result<String, AocError> {
+    let g = Grid::new(&input.get_input_lines()?);
+    let (location, direction) = starting_location(&g);
+    let answer = get_visited_locations(&g, location, direction).len();
     Ok(format!("{answer}"))
 }
 
-pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let lines = input.get_input_lines()?;
-    let mut original_grid = Grid::new(&lines);
-    let locations = original_grid.find(HashSet::from([b'^']));
-    let starting_location = *locations.get(&b'^').unwrap().first().unwrap();
-    let starting_direction = Direction::N;
-    original_grid.set(starting_location, b'.');
+fn has_cycle(g: &Grid, starting_location: RowCol, starting_direction: Direction) -> bool {
+    let mut visited = HashSet::<(RowCol,Direction)>::new();
+    let mut location = starting_location;
+    let mut direction = starting_direction;
 
-    let mut tried_options = HashSet::<RowCol>::new();
-    let mut successful_options = HashSet::<RowCol>::new();
-    eprintln!("F");
+    loop {
+        if !visited.insert((location, direction)) {
+            // we've been here before
+            return true;
+        }
 
-    'outer: loop {
-        let mut g = original_grid.clone();
-        let mut location = starting_location;
-        let mut direction = starting_direction;
-        let mut candidate_option: Option<RowCol> = None;
+        let ahead = location.plus(&direction);
 
-        let mut visited = HashSet::<(RowCol, Direction)>::new();
-
-        eprintln!("Starting trial having already tried {} options and found {} successful options", tried_options.len(), successful_options.len());
-        'trial: loop {
-            if !visited.insert((location, direction)) {
-                // we've been here before
-                if let Some(option) = candidate_option {
-                    successful_options.insert(option);
-                }
-                break 'trial;
-            }
-
-            g.set(location, b'X');
-            let ahead = location.plus(&direction);
-
-            match g.get(ahead) {
-                None => match candidate_option {
-                    Some(_) => break 'trial, // went off grid while testing an option, try again, there may be more
-                    None => break 'outer, // went off grid without any tested option, trying again won't work
-                },
-                Some(b'.') | Some(b'X') => {
-                    if candidate_option.is_none() && tried_options.insert(ahead) {
-                        g.set(ahead, b'O');
-                        candidate_option.replace(ahead);
-                        direction = direction.cw_90();
-                    } else {
-                        location = ahead;
-                    }
-                }
-                Some(b'#') | Some(b'O') => direction = direction.cw_90(),
-                Some(c) => panic!("Unknown cell {} at location {ahead}", c as char),
-            }
-        }   
+        match g.get(ahead) {
+            None => return false,
+            Some(b'.') => location = ahead,
+            Some(b'#') | Some(b'O') => direction = direction.cw_90(),
+            Some(c) => panic!("Unknown cell {} at location {ahead}", c as char),
+        }
     }
-    let answer = successful_options.len();
+}
+
+pub fn part2(input: DailyInput) -> Result<String, AocError> {
+    let mut g = Grid::new(&input.get_input_lines()?);
+    let (starting_location, starting_direction) = starting_location(&g);
+    g.set(starting_location, b'.');
+
+    let mut locations = get_visited_locations(&g, starting_location, starting_direction);
+    locations.remove(&starting_location); /* cannot put anything in the starting point */
+
+    let answer = locations
+        .iter()
+        .filter(|&option| {
+            g.set(*option, b'O');
+            let produces_cycle = has_cycle(&g, starting_location, starting_direction);
+            g.set(*option, b'.');
+            produces_cycle
+        })
+        .count();
     Ok(format!("{answer}"))
 }
 
