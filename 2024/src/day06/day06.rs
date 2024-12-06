@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash};
+use std::collections::HashSet;
 
 use crate::{
     coord::{Direction, RowCol},
@@ -15,7 +15,7 @@ fn get_visited_locations(g: &Grid, starting_location: RowCol, starting_direction
 
         let ahead = location.plus(&direction);
         match g.get(ahead) {
-            Some(b'#') => direction = direction.cw_90(),
+            Some(b'#') => direction = direction.turn_cw_90(),
             Some(_) => location = ahead,
             None => break,
         }
@@ -50,7 +50,7 @@ fn has_cycle(g: &Grid, starting_location: RowCol, starting_direction: Direction)
         match g.get(ahead) {
             None => return false,
             Some(b'.') => location = ahead,
-            Some(b'#') | Some(b'O') => direction = direction.cw_90(),
+            Some(b'#') | Some(b'O') => direction = direction.turn_cw_90(),
             Some(c) => panic!("Unknown cell {} at location {ahead}", c as char),
         }
     }

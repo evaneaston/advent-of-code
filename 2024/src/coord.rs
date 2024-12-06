@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use strum_macros::{Display, EnumIter};
 
-#[derive(EnumIter, Debug, Display, Clone, Copy, PartialEq,Eq, Hash)]
+#[derive(EnumIter, Debug, Display, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
     N,
     NE,
@@ -13,7 +13,7 @@ pub enum Direction {
     NW,
 }
 impl Direction {
-    pub fn cw_90(&self) -> Self {
+    pub fn turn_cw_90(&self) -> Self {
         match self {
             Direction::N => Direction::E,
             Direction::NE => Direction::SE,
@@ -25,10 +25,26 @@ impl Direction {
             Direction::NW => Direction::NE,
         }
     }
+    pub fn turn_180(&self) -> Self {
+        match self {
+            Direction::N => Direction::S,
+            Direction::NE => Direction::SW,
+            Direction::E => Direction::W,
+            Direction::SE => Direction::NW,
+            Direction::S => Direction::N,
+            Direction::SW => Direction::NE,
+            Direction::W => Direction::E,
+            Direction::NW => Direction::SE,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct RowCol(pub i64, pub i64);
+
+pub(crate) const fn rc(row: i64, col: i64) -> RowCol {
+    RowCol(row, col)
+}
 
 ///  2D coordinate: row ↕ , col ↔
 #[allow(dead_code)]
@@ -98,6 +114,10 @@ impl From<XY> for RowCol {
 /// 2D Coordinate - Cartesian:  x ↔ , y ↕
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct XY(pub i64, pub i64);
+
+pub(crate) const fn xy(x: i64, y: i64) -> XY {
+    XY(x, y)
+}
 
 #[allow(dead_code)]
 impl XY {
