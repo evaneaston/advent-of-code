@@ -1,11 +1,27 @@
+use itertools::{repeat_n, Itertools};
 use regex::Regex;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 use crate::{AocError, DailyInput};
 
-#[derive(Debug)]
+trait Apply {
+    fn apply(&self, op1: &i64, op2: &i64) -> i64;
+}
+
+#[derive(Debug, EnumIter, Clone)]
 enum Operator {
     Add,
     Multiply,
+}
+
+impl Apply for Operator {
+    fn apply(&self, op1: &i64, op2: &i64) -> i64 {
+        match self {
+            Self::Add => *op1 + *op2,
+            Self::Multiply => *op1 * *op2,
+        }
+    }
 }
 
 fn parse(input: &DailyInput) -> Result<Vec<(i64, Vec<i64>)>, AocError> {
@@ -28,108 +44,63 @@ fn parse(input: &DailyInput) -> Result<Vec<(i64, Vec<i64>)>, AocError> {
         .collect::<Vec<_>>())
 }
 
-fn generate_permutations(n: usize) -> Vec<Vec<Operator>> {
-    let mut permutations = Vec::new();
-    let total_combinations = 1 << n; // 2^n combinations
-
-    for i in 0..total_combinations {
-        let mut permutation = Vec::new();
-        for bit in 0..n {
-            // Check if the bit at position `bit` is set
-            if (i & (1 << bit)) != 0 {
-                permutation.push(Operator::Add);
+fn search_permutations<O: IntoEnumIterator + Apply>(
+    expected_value: &i64,
+    parent_result: &i64,
+    values: &[i64],
+    current_index: usize,
+    last_index: usize,
+) -> Option<i64> {
+    let o2 = values[current_index];
+    O::iter().find_map(|op| {
+        let result = op.apply(parent_result, &o2);
+        if current_index == last_index {
+            if result == *expected_value {
+                Some(result)
             } else {
-                permutation.push(Operator::Multiply);
+                None
             }
+        } else {
+            search_permutations::<O>(expected_value, &result, values, current_index + 1, last_index)
         }
-        permutations.push(permutation);
-    }
-
-    permutations
+    })
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let inputs = parse(&input)?;
-    eprintln!("{:?}", inputs);
     let answer = inputs
         .iter()
-        .filter_map(|(answer, operands)| {
-
-            let compute = |operators:&Vec<Operator>|  -> i64 {
-                let mut x = *operands.first().unwrap();
-                for (i, op) in operators.iter().enumerate() {
-                    x = match op {
-                        Operator::Add => x + operands[i + 1],
-                        Operator::Multiply => x * operands[i + 1],
-                    };
-                }
-                x
-            };
-
-            let operation_permutations = generate_permutations(operands.len() - 1);
-            operation_permutations.iter().map(compute).find(|&a| a == *answer)
-        }).sum::<i64>();
+        .filter_map(|(expected_answer, operands)| {
+            search_permutations::<Operator>(expected_answer, &operands[0], operands, 1, operands.len() - 1)
+        })
+        .sum::<i64>();
     Ok(format!("{answer}"))
 }
 
-#[derive(Debug)]
+#[derive(Debug, EnumIter, Clone)]
 enum Operator2 {
     Add,
     Multiply,
     Concatenate,
 }
-
-
-
-fn generate_permutations2(n: usize) -> Vec<Vec<Operator2>> {
-    let mut permutations = Vec::new();
-    let total_combinations = usize::pow(3, n as u32); // 3^n combinations
-
-    for i in 0..total_combinations {
-        let mut permutation = Vec::new();
-        let mut value = i;
-
-        for _ in 0..n {
-            // Map the current base-3 digit to an enum variant
-            let digit = value % 3; // Get the remainder (base-3 digit)
-            let enum_variant = match digit {
-                0 => Operator2::Add,
-                1 => Operator2::Multiply,
-                2 => Operator2::Concatenate,
-                _ => unreachable!(),
-            };
-            permutation.push(enum_variant);
-            value /= 3; // Move to the next base-3 digit
+impl Apply for Operator2 {
+    fn apply(&self, op1: &i64, op2: &i64) -> i64 {
+        match self {
+            Self::Add => *op1 + *op2,
+            Self::Multiply => *op1 * *op2,
+            Self::Concatenate => format!("{op1}{}", op2).parse::<i64>().unwrap(),
         }
-
-        permutations.push(permutation);
     }
-
-    permutations
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let inputs = parse(&input)?;
-    eprintln!("{:?}", inputs);
     let answer = inputs
         .iter()
-        .filter_map(|(answer, operands)| {
-
-            let compute = |operators:&Vec<Operator2>|  -> i64 {
-                let mut x = *operands.first().unwrap();
-                for (i, op) in operators.iter().enumerate() {
-                    x = match op {
-                        Operator2::Add => x + operands[i + 1],
-                        Operator2::Multiply => x * operands[i + 1],
-                        Operator2::Concatenate => format!("{x}{}", operands[i+1]).parse::<i64>().unwrap(),
-                    };
-                }
-                x
-            };
-
-            let operation_permutations = generate_permutations2(operands.len() - 1);
-            operation_permutations.iter().map(compute).find(|&a| a == *answer)
-        }).sum::<i64>();
+        .filter_map(|(expected_answer, operands)| {
+            search_permutations::<Operator2>(expected_answer, &operands[0], operands, 1, operands.len() - 1)
+        })
+        .sum::<i64>();
     Ok(format!("{answer}"))
 }
 
