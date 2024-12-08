@@ -1,6 +1,8 @@
 use std::fmt::Display;
 use strum_macros::{Display, EnumIter};
 
+pub struct Offset(pub i64, pub i64);
+
 #[derive(EnumIter, Debug, Display, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
     N,
@@ -93,6 +95,15 @@ impl RowCol {
             Direction::W => self.offset_col(-n),
             Direction::NW => self.offset(-n, -n),
         }
+    }
+    pub fn plus_offset(&self, offset: &Offset) -> Self {
+        Self(self.0 + offset.0, self.1 + offset.1)
+    }
+    pub fn minus_offset(&self, offset: &Offset) -> Self {
+        Self(self.0 - offset.0, self.1 - offset.1)
+    }
+    pub fn diff(&self, other: &Self) -> Offset {
+        Offset(self.0 - other.0, self.1 - other.1)
     }
 }
 impl Display for RowCol {
