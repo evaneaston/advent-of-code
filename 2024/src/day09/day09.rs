@@ -1,8 +1,5 @@
-use std::iter::repeat;
-
-use itertools::Itertools;
-
 use crate::{AocError, DailyInput};
+use std::iter::repeat;
 
 fn is_odd(v: &usize) -> bool {
     0 == v % 2
@@ -24,8 +21,6 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
             r
         })
         .collect::<Vec<_>>();
-
-    // eprintln!("{}", String::from_utf8(expanded.clone()).unwrap());
 
     let mut l = 0_usize;
     let mut r = expanded.len() - 1;
@@ -49,17 +44,9 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
             expanded[r] = -1;
         }
     }
-    // eprintln!("{}", String::from_utf8(expanded.clone()).unwrap());
-    let answer: i64 = expanded
-        .iter()
-        .filter(|c| **c != -1)
-        .enumerate()
-        .map(|(index, id)| {
-            let r = index as i64 * id;
-            // eprint!("{index} x {id} = {r},");
-            r
-        })
-        .sum();
+
+    let answer: i64 = expanded.iter().filter(|c| **c != -1).enumerate().map(|(index, id)| index as i64 * id).sum();
+
     Ok(format!("{answer}"))
 }
 
@@ -78,12 +65,9 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         .enumerate()
         .map(|(index, d)| {
             if index % 2 == 0 {
-                let b = Content::File {
-                    id: next_id,
-                    len: *d as usize,
-                };
+                let id = next_id;
                 next_id += 1;
-                b
+                Content::File { id, len: *d as usize }
             } else {
                 Content::Gap { len: *d as usize }
             }
@@ -94,54 +78,41 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .collect::<Vec<_>>();
 
-    // eprintln!("Start: {}", render_disk(&disk));
-
-    let mut times = 0;
-
-    let mut r = disk.len() - 1;
+    let mut right = disk.len() - 1;
     loop {
-        times += 1;
+        if let Content::File { id, len: file_len } = disk[right] {
+            let mut left = 0;
+            while left < right {
 
-        if let Content::File { id, len: file_len } = disk[r] {
-            let mut l = 0;
-            while l < r {
-                match disk[l] {
-                    Content::File { .. } => {}
-                    Content::Gap { len: gap_len } => {
-                        if gap_len == file_len {
-                            disk[l] = Content::File { id, len: file_len };
-                            disk[r] = Content::Gap { len: file_len };
-                            //eprintln!("Move {r} to {l}. {}", render_disk(&disk));
-                            break;
-                        } else if gap_len > file_len {
-                            //eprintln!("Move {r} to {l} with extra gap of {}.", gap_len - file_len);
-                            disk[l] = Content::File { id, len: file_len };
-                            disk[r] = Content::Gap { len: file_len };
-                            //eprintln!("     swap: {}", render_disk(&disk));
+                if let Content::Gap { len: gap_len } = disk[left] {
+                    if gap_len >= file_len {
+                        disk[left] = Content::File { id, len: file_len };
+                        disk[right] = Content::Gap { len: file_len };
+
+                        if gap_len > file_len {
                             let mut new_gap_len = gap_len - file_len;
-                            while let Content::Gap { len } = disk[l + 1] {
+
+                            while let Content::Gap { len } = disk[left + 1] {
                                 new_gap_len += len;
-                                disk.remove(l + 1);
-                                r -= 1;
+                                disk.remove(left + 1);
+                                right -= 1;
                             }
-                            //eprintln!(" coalesce: {}", render_disk(&disk));
-                            disk.insert(l + 1, Content::Gap { len: new_gap_len });
-                            r += 1;
-                            //eprintln!(" final: {}", render_disk(&disk));
-                            break;
+
+                            disk.insert(left + 1, Content::Gap { len: new_gap_len });
+                            right += 1;
                         }
                     }
                 }
-                l += 1;
+
+                left += 1;
             }
         }
 
-        r -= 1;
-        if r == 0 {
+        right -= 1;
+        if right == 0 {
             break;
         }
     }
-    //  eprint!("{}", render_disk(&disk));
 
     let answer = disk
         .iter()
@@ -159,15 +130,6 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     Ok(format!("{answer}"))
 }
 
-fn render_disk(disk: &[Content]) -> String {
-    disk.iter()
-        .map(|c| match c {
-            Content::File { id, len } => repeat(format!("{id}")).take(*len),
-            Content::Gap { len } => repeat(format!(".")).take(*len),
-        })
-        .flatten()
-        .join("")
-}
 #[cfg(test)]
 mod test {
     use super::{part1, part2};
