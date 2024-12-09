@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{coord::RowCol, grid::Grid, AocError, DailyInput};
-use itertools::{any, Itertools};
+use itertools::Itertools;
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let g = Grid::new(&input.get_input_lines()?);

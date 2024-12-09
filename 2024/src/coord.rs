@@ -27,6 +27,7 @@ impl Direction {
             Direction::NW => Direction::NE,
         }
     }
+    #[allow(dead_code)]
     pub fn turn_180(&self) -> Self {
         match self {
             Direction::N => Direction::S,
@@ -44,6 +45,7 @@ impl Direction {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct RowCol(pub i64, pub i64);
 
+#[allow(dead_code)]
 pub(crate) const fn rc(row: i64, col: i64) -> RowCol {
     RowCol(row, col)
 }
@@ -126,6 +128,7 @@ impl From<XY> for RowCol {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct XY(pub i64, pub i64);
 
+#[allow(dead_code)]
 pub(crate) const fn xy(x: i64, y: i64) -> XY {
     XY(x, y)
 }
