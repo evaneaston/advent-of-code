@@ -6,61 +6,60 @@ use crate::{
     AocError, DailyInput,
 };
 
-fn score(g: &Grid, start: RowCol) -> usize {
-    let mut nines = HashSet::<RowCol>::new();
-    climb(g, b'0', &start, &mut nines);
-    nines.len()
-}
-fn climb(g: &Grid, last_val: u8, coord: &RowCol, nines: &mut HashSet<RowCol>) {
-    for dir in [Direction::N, Direction::S, Direction::E, Direction::W] {
-        let next = coord.plus(&dir);
-        if let Some(v) = g.get(next) {
-            if v == last_val + 1 {
-                if v == b'9' {
-                    nines.insert(next);
-                } else {
-                    climb(g, v, &next, nines);
-                }
-            }
-        }
-    }
-}
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let g = Grid::new(&input.get_input_lines()?);
-    let index = g.find(HashSet::from_iter([b'0']));
-    let trailheads = index.get(&b'0').unwrap();
+    let (g, trailheads) = grid_and_trailheads(input)?;
 
-    let answer = trailheads.iter().map(|&start| score(&g, start)).sum::<usize>();
+    let answer = trailheads
+        .iter()
+        .map(|&start| {
+            let mut reachable_summit_locations = HashSet::<RowCol>::new();
+            climb_to_all_summits(&g, b'0', &start, &mut |coord: &RowCol| {
+                reachable_summit_locations.insert(*coord);
+            });
+            reachable_summit_locations.len()
+        })
+        .sum::<usize>();
+
     Ok(format!("{answer}"))
-}
-
-fn rating(g: &Grid, start: RowCol) -> usize {
-    let mut count = 0_usize;
-    climb_for_rating(g, b'0', &start, &mut count);
-    count
-}
-fn climb_for_rating(g: &Grid, last_val: u8, coord: &RowCol, count: &mut usize) {
-    for dir in [Direction::N, Direction::S, Direction::E, Direction::W] {
-        let next = coord.plus(&dir);
-        if let Some(v) = g.get(next) {
-            if v == last_val + 1 {
-                if v == b'9' {
-                    *count += 1;
-                } else {
-                    climb_for_rating(g, v, &next, count);
-                }
-            }
-        }
-    }
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let g = Grid::new(&input.get_input_lines()?);
-    let index = g.find(HashSet::from_iter([b'0']));
-    let trailheads = index.get(&b'0').unwrap();
+    let (g, trailheads) = grid_and_trailheads(input)?;
 
-    let answer = trailheads.iter().map(|&start| rating(&g, start)).sum::<usize>();
+    let answer = trailheads
+        .iter()
+        .map(|&start| {
+            let mut rating = 0_usize;
+            climb_to_all_summits(&g, b'0', &start, &mut |_: &RowCol| {
+                rating += 1;
+            });
+            rating
+        })
+        .sum::<usize>();
+
     Ok(format!("{answer}"))
+}
+
+fn climb_to_all_summits(g: &Grid, last_val: u8, coord: &RowCol, report_summit: &mut impl FnMut(&RowCol)) {
+    for dir in [Direction::N, Direction::S, Direction::E, Direction::W] {
+        let next = coord.plus(&dir);
+        if let Some(v) = g.get(next) {
+            if v == last_val + 1 {
+                if v == b'9' {
+                    report_summit(&next);
+                } else {
+                    climb_to_all_summits(g, v, &next, report_summit);
+                }
+            }
+        }
+    }
+}
+
+fn grid_and_trailheads(input: DailyInput) -> Result<(Grid, Vec<RowCol>), AocError> {
+    let g = Grid::new(&input.get_input_lines()?);
+    let mut index = g.find(HashSet::from_iter([b'0']));
+    let trailheads = index.remove(&b'0').unwrap();
+    Ok((g, trailheads))
 }
 
 #[cfg(test)]
