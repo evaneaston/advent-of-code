@@ -78,33 +78,56 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .collect::<Vec<_>>();
 
+    // let mut index = 0;
+
     let mut right = disk.len() - 1;
     loop {
-        if let Content::File { id, len: file_len } = disk[right] {
-            let mut left = 0;
-            while left < right {
+        //eprintln!("{index}:{}", render_disk(&disk));
+        // index += 1;
 
-                if let Content::Gap { len: gap_len } = disk[left] {
-                    if gap_len >= file_len {
-                        disk[left] = Content::File { id, len: file_len };
-                        disk[right] = Content::Gap { len: file_len };
+        match disk[right] {
+            Content::File { id, len: file_len } => {
+                //eprintln!("  @right={right} File #{id} (len={file_len})");
+                let mut left = 0;
+                while left < right {
+                    match disk[left] {
+                        Content::Gap { len: gap_len } => {
+                            //eprintln!("  @left={left} = gap (len={gap_len})");
+                            if gap_len >= file_len {
+                                //eprintln!("    it's big enough,");
+                                disk[left] = Content::File { id, len: file_len };
+                                disk[right] = Content::Gap { len: file_len };
 
-                        if gap_len > file_len {
-                            let mut new_gap_len = gap_len - file_len;
+                                if gap_len > file_len {
+                                    let mut new_gap_len = gap_len - file_len;
+                                    disk.insert(left + 1, Content::Gap { len: new_gap_len });
+                                    right += 1;
 
-                            while let Content::Gap { len } = disk[left + 1] {
-                                new_gap_len += len;
-                                disk.remove(left + 1);
-                                right -= 1;
+                                    //eprintln!("    swapped and padded: {}", render_disk(&disk));
+
+                                    while let Some(Content::Gap { len }) = disk.get(left + 2) {
+                                        new_gap_len += len;
+                                        disk.remove(left + 2);
+                                        right -= 1;
+                                    }
+                                    disk[left + 1] = Content::Gap { len: new_gap_len };
+                                    //eprintln!("    combined padding  : {}", render_disk(&disk));
+                                }
+                                //eprintln!("    left={left} right={right}");
+                                break;
                             }
-
-                            disk.insert(left + 1, Content::Gap { len: new_gap_len });
-                            right += 1;
+                        }
+                        Content::File { .. } => {
+                            //Content::File { id, len: file_len } => {
+                            //eprintln!("  @left={left} = File {id} (len={file_len})");
                         }
                     }
+                    left += 1;
                 }
-
-                left += 1;
+            }
+            Content::Gap { .. } => {
+            //Content::Gap { len } => {
+                //eprintln!("  @right={right} Gap (len={len})");
             }
         }
 
@@ -113,6 +136,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
             break;
         }
     }
+    //eprintln!("Final:{}", render_disk(&disk));
 
     let answer = disk
         .iter()
@@ -127,12 +151,20 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .sum::<i64>();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
+
+// fn render_disk(disk: &[Content]) -> String {
+//     let mut t = disk.iter().flat_map(|c| match c {
+//         Content::File { id, len } => repeat(format!("{id}")).take(*len),
+//         Content::Gap { len } => repeat(".".to_string()).take(*len),
+//     });
+//     t.join("")
+// }
 
 #[cfg(test)]
 mod test {
-    use super::{part1, part2};
+    use crate::day09::{part1, part2};
     use crate::{DailyInput, InputType};
 
     const DAY: usize = 9;

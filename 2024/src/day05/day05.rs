@@ -108,8 +108,8 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
 
 #[cfg(test)]
 mod test {
-    use super::{part1, part2};
-    use crate::{day05::middle, DailyInput, InputType};
+    use super::{part1, part2, middle};
+    use crate::{DailyInput, InputType};
 
     const DAY: usize = 5;
 

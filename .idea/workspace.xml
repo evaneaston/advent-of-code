@@ -3,206 +3,80 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CargoProjects">
-    <cargoProject FILE="$PROJECT_DIR$/2022/Cargo.toml" />
-    <cargoProject FILE="$PROJECT_DIR$/2023/Cargo.toml" />
-    <cargoProject FILE="$PROJECT_DIR$/2024/Cargo.toml" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd050436-4c8c-41d0-ab01-c89af8173561" name="Changes" comment="Reorg">
+    <list default="true" id="3ff6ae7c-6270-4698-bd1a-dfa511355edb" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2024/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/2024/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2024/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/2024/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2024/src/coord.rs" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/coord.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2024/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/2024/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="CompilerWorkspaceConfiguration">
-    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
-    <option name="PARALLEL_COMPILATION" value="true" />
-  </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MacroExpansionManager">
-    <option name="directoryName" value="kyn51rc8" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 6
-}</component>
-  <component name="ProjectId" id="2pBhQdUgADWLov8j2UY3zSAgok1" />
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "eeaston-datasite"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:evaneaston/advent-of-code.git",
+    "accountId": "294d6a44-3f64-44f7-9441-98a3a4769af5"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2q563JdTUy6mvdJugot0eOJPJpS" />
   <component name="ProjectViewState">
+    <option name="abbreviatePackageNames" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Cargo.Run main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/evan/workspace/advent-of-code/2024/src/day02",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
-    "org.rust.disableDetachedFileInspectionC:/Users/evan/workspace/advent-of-code/2024/src/day16/mod.rs": "true",
-    "project.structure.last.edited": "Problems",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.excludes"
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\evan\workspace\advent-of-code\2024\src\day02" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\evan\workspace\advent-of-code\2024\src\day25" />
-    </key>
-  </component>
-  <component name="RsExternalLinterProjectSettings">
-    <option name="runOnTheFly" value="true" />
-    <option name="tool" value="Clippy" />
-  </component>
-  <component name="RunManager" selected="Cargo.Expand aoc2023 [aoc2023]">
-    <configuration name="Expand aoc2023 [aoc2023]" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="expand --lib --color=always --theme=Dracula --tests" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/2023" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Run main" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="run --package aoc2023 --bin main -- all" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/2023" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test day01::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package aoc2024 --lib day01::test" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/2024" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test grid::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package aoc2024 --lib grid::tests" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/2024" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Cargo.Expand aoc2023 [aoc2023]" />
-        <item itemvalue="Cargo.Test day01::test" />
-        <item itemvalue="Cargo.Test grid::tests" />
-        <item itemvalue="Cargo.Run main" />
-      </list>
-    </recent_temporary>
-  </component>
-  <component name="RustProjectSettings">
-    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
-  </component>
-  <component name="RustfmtProjectSettings">
-    <option name="useRustfmt" value="true" />
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.19416.15" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.19416.15" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="cd050436-4c8c-41d0-ab01-c89af8173561" name="Changes" comment="" />
-      <created>1732245365213</created>
+      <changelist id="3ff6ae7c-6270-4698-bd1a-dfa511355edb" name="Changes" comment="" />
+      <created>1733939895387</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1732245365213</updated>
-      <workItem from="1732245366310" duration="631000" />
-      <workItem from="1732288222966" duration="164000" />
-      <workItem from="1732288609618" duration="9389000" />
-      <workItem from="1732305289152" duration="2086000" />
+      <updated>1733939895387</updated>
+      <workItem from="1733939896425" duration="885000" />
     </task>
-    <task id="LOCAL-00001" summary="Reorg">
-      <option name="closed" value="true" />
-      <created>1732300322668</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1732300322668</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Reorg" />
-    <option name="LAST_COMMIT_MESSAGE" value="Reorg" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
