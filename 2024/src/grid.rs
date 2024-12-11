@@ -177,7 +177,7 @@ impl Grid {
      * Search for all occurrences of any of the chars, returning them all in a HashMap with values containing all of their [RowCol].
      * Each character's vector will be ordered top-down, left-to-right.
      */
-    pub fn find(&self, chars: HashSet<u8>) -> HashMap<u8, Vec<RowCol>> {
+    pub fn index(&self, chars: HashSet<u8>) -> HashMap<u8, Vec<RowCol>> {
         let mut result: HashMap<u8, Vec<RowCol>> = HashMap::new();
 
         for index in 0..self.data.len() {
@@ -193,6 +193,10 @@ impl Grid {
         }
 
         result
+    }
+
+    pub fn find(&self, c: u8) -> Option<RowCol> {
+        self.data.iter().enumerate().find(|(_,&v)| v == c).map(|(i,_)| self.row_col_for_index(i))
     }
 
     pub fn row_count(&self) -> usize {

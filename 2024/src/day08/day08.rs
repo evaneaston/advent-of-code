@@ -16,7 +16,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         s.insert(b);
     });
 
-    let found = g.find(s);
+    let found = g.index(s);
 
     let mut anti_nodes = HashSet::<RowCol>::new();
     for v in found.values() {
@@ -54,7 +54,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         s.insert(b);
     });
 
-    let found = g.find(s);
+    let found = g.index(s);
 
     let mut anti_nodes = HashSet::<RowCol>::new();
     for v in found.values() {

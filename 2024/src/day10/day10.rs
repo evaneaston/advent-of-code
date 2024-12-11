@@ -57,7 +57,7 @@ fn climb_to_all_summits(g: &Grid, last_val: u8, coord: &RowCol, report_summit: &
 
 fn grid_and_trailheads(input: DailyInput) -> Result<(Grid, Vec<RowCol>), AocError> {
     let g = Grid::new(&input.get_input_lines()?);
-    let mut index = g.find(HashSet::from_iter([b'0']));
+    let mut index = g.index(HashSet::from_iter([b'0']));
     let trailheads = index.remove(&b'0').unwrap();
     Ok((g, trailheads))
 }

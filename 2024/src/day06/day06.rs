@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use crate::{
     coord::{Direction, RowCol},
@@ -6,74 +6,158 @@ use crate::{
     AocError, DailyInput,
 };
 
-fn get_visited_locations(g: &Grid, starting_location: RowCol, starting_direction: Direction) -> HashSet<RowCol> {
-    let mut location = starting_location;
-    let mut direction = starting_direction;
-    let mut visited_locations = HashSet::new();
-    while g.get(location).is_some() {
-        visited_locations.insert(location);
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum State {
+    Ready,
+    OffGrid,
+    LoopDetected,
+}
 
-        let ahead = location.plus(&direction);
-        match g.get(ahead) {
-            Some(b'#') => direction = direction.turn_cw_90(),
-            Some(_) => location = ahead,
-            None => break,
+#[derive(Clone)]
+struct Simulation {
+    grid: Grid,
+    start_location: RowCol,
+    //start_direction: Direction,
+    location: RowCol,
+    direction: Direction,
+    path: Vec<(RowCol, Direction)>,
+    index: HashSet<(RowCol, Direction)>,
+}
+impl Simulation {
+    fn start(mut grid: Grid) -> Self {
+        let (location, direction) = starting_location(&grid);
+        grid.set(location, b'.');
+        let path = vec![(location, direction)];
+        let index = HashSet::from([(location, direction)]);
+        Simulation {
+            grid,
+            start_location: location,
+            // start_direction: direction,
+            location,
+            direction,
+            path,
+            index,
         }
     }
-    visited_locations
+    fn peek_in_front(&self) -> (RowCol, Option<u8>) {
+        let next_location = self.location.plus(&self.direction);
+        (next_location, self.grid.get(next_location))
+    }
+
+    fn advance(&mut self) -> State {
+        let (next, value) = self.peek_in_front();
+        match value {
+            None => State::OffGrid,
+            Some(b'.') => {
+                let next_entry = (next, self.direction);
+                if !self.index.insert(next_entry) {
+                    return State::LoopDetected;
+                }
+                self.location = next;
+                self.path.push((self.location, self.direction));
+                State::Ready
+            }
+            Some(b'#') | Some(b'O') => {
+                let next_entry = (self.location, self.direction.turn_cw_90());
+                if !self.index.insert(next_entry) {
+                    return State::LoopDetected;
+                }
+                self.direction = next_entry.1;
+                self.path.push((self.location, self.direction));
+                State::Ready
+            }
+            Some(c) => panic!("Unknown cell {} at location {next}", c as char),
+        }
+    }
+    fn back(&mut self) -> bool {
+        let last = match self.path.pop() {
+            Some(x) => x,
+            None => return false,
+        };
+        self.index.remove(&last);
+        let tail = match self.path.last() {
+            Some(x) => x,
+            None => return false,
+        };
+        self.location = tail.0;
+        self.direction = tail.1;
+        true
+    }
+    fn run_to_end(&mut self) -> State {
+        loop {
+            match self.advance() {
+                State::Ready => continue,
+                State::OffGrid => return State::OffGrid,
+                State::LoopDetected => return State::LoopDetected,
+            }
+        }
+    }
 }
 
 fn starting_location(grid: &Grid) -> (RowCol, Direction) {
-    (*grid.find(HashSet::from([b'^'])).get(&b'^').unwrap().first().unwrap(), Direction::N)
+    (grid.find(b'^').expect("Unable to find start"), Direction::N)
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let g = Grid::new(&input.get_input_lines()?);
-    let (location, direction) = starting_location(&g);
-    let answer = get_visited_locations(&g, location, direction).len();
-    Ok(format!("{answer}"))
-}
+    let mut s = Simulation::start(g);
+    s.run_to_end();
 
-fn has_cycle(g: &Grid, starting_location: RowCol, starting_direction: Direction) -> bool {
-    let mut visited = HashSet::<(RowCol,Direction)>::new();
-    let mut location = starting_location;
-    let mut direction = starting_direction;
-
-    loop {
-        if !visited.insert((location, direction)) {
-            // we've been here before
-            return true;
-        }
-
-        let ahead = location.plus(&direction);
-
-        match g.get(ahead) {
-            None => return false,
-            Some(b'.') => location = ahead,
-            Some(b'#') | Some(b'O') => direction = direction.turn_cw_90(),
-            Some(c) => panic!("Unknown cell {} at location {ahead}", c as char),
-        }
-    }
+    let answer = s.path.iter().map(|(l, _)| l).collect::<HashSet<_>>().len();
+    Ok(answer.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let mut g = Grid::new(&input.get_input_lines()?);
-    let (starting_location, starting_direction) = starting_location(&g);
-    g.set(starting_location, b'.');
+    let g = Grid::new(&input.get_input_lines()?);
+    let mut s = Simulation::start(g);
+    s.run_to_end();
 
-    let mut locations = get_visited_locations(&g, starting_location, starting_direction);
-    locations.remove(&starting_location); /* cannot put anything in the starting point */
+    let mut o_locs = BTreeSet::new();
+    loop {
+        if !s.back() {
+            break;
+        }
+        // eprint!(
+        //     "At {0} facing {1} (path len={2}) ",
+        //     s.location,
+        //     s.direction,
+        //     s.path.len()
+        // );
 
-    let answer = locations
-        .iter()
-        .filter(|&option| {
-            g.set(*option, b'O');
-            let produces_cycle = has_cycle(&g, starting_location, starting_direction);
-            g.set(*option, b'.');
-            produces_cycle
-        })
-        .count();
-    Ok(format!("{answer}"))
+        let (in_front_location, v) = s.peek_in_front();
+        if in_front_location == s.start_location {
+            // the guard was standing here at the start, can't place the O
+            continue;
+        }
+        match v {
+            None => {
+                // in front of us is off grid, can't place an O there
+                continue;
+            }
+            Some(b'#') => {
+                // there's already something in front of us
+                continue;
+            }
+            Some(b'.') => {
+                if s.index.iter().any(|(location, _)| location == &in_front_location) {
+                    // We went through that block in front of us to get here.  Putting an O there would not allow us to get here on the path we did
+                } else {
+                    
+                    // run sim from here with an O in front of us                   
+                    let mut cloned_sim = s.clone();
+                    cloned_sim.grid.set(in_front_location, b'O');
+
+                    if cloned_sim.run_to_end() == State::LoopDetected {
+                        o_locs.insert(in_front_location);
+                    }
+                }
+            }
+            Some(c) => panic!("Unknown cell {} at location {in_front_location}", c as char),
+        }
+    }
+    
+    let answer = o_locs.len();
+    Ok(answer.to_string())
 }
 
 #[cfg(test)]
