@@ -25,7 +25,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
             }
         }
     }
-    Ok(format!("{count}"))
+    Ok(count.to_string())
 }
 
 fn is_x_mas_match(grid: &Grid, rc: RowCol) -> bool {
@@ -52,7 +52,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
             }
         }
     }
-    Ok(format!("{count}"))
+    Ok(count.to_string())
 }
 
 #[cfg(test)]

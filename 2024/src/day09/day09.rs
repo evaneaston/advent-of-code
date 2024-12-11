@@ -47,7 +47,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
 
     let answer: i64 = expanded.iter().filter(|c| **c != -1).enumerate().map(|(index, id)| index as i64 * id).sum();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[derive(Debug)]

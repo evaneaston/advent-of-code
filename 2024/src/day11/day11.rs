@@ -48,7 +48,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         crate::InputType::Example => 6,
         crate::InputType::Challenge => 25,
     };
-    Ok(format!("{}", solve(stones, times)))
+    Ok(solve(stones, times).to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
@@ -62,7 +62,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         crate::InputType::Challenge => 75,
     };
 
-    Ok(format!("{}", solve(stones, times)))
+    Ok(solve(stones, times).to_string())
 }
 
 #[cfg(test)]

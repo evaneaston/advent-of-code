@@ -73,7 +73,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
             search_permutations::<Operator>(expected_answer, &operands[0], operands, 1, operands.len() - 1)
         })
         .sum::<i64>();
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[derive(Debug, EnumIter, Clone)]
@@ -100,7 +100,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
             search_permutations::<Operator2>(expected_answer, &operands[0], operands, 1, operands.len() - 1)
         })
         .sum::<i64>();
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[cfg(test)]

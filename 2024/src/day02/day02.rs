@@ -26,7 +26,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         .filter(|&report| is_safe(report))
         .count();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 fn is_safe(report: &[i64]) -> bool {
@@ -56,7 +56,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .count();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[cfg(test)]

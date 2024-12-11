@@ -62,7 +62,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         .map(|pages| middle(pages))
         .sum::<i64>();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 fn reorder(input: &Day05Input, pages: &[i64]) -> Vec<i64> {
@@ -103,7 +103,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         .map(|pages| reorder(&input, pages))
         .map(|pages| middle(&pages))
         .sum::<i64>();
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[cfg(test)]

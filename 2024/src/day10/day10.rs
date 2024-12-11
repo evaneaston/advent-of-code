@@ -20,7 +20,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
         })
         .sum::<usize>();
 
-    Ok(format!("{answer}"))
+        Ok(answer.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
@@ -37,7 +37,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         })
         .sum::<usize>();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 fn climb_to_all_summits(g: &Grid, last_val: u8, coord: &RowCol, report_summit: &mut impl FnMut(&RowCol)) {

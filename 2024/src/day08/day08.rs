@@ -38,7 +38,7 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
     }
     let answer = anti_nodes.len();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
@@ -88,7 +88,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
 
     let answer = anti_nodes.len();
 
-    Ok(format!("{answer}"))
+    Ok(answer.to_string())
 }
 
 #[cfg(test)]
