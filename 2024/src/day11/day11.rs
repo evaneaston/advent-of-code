@@ -3,39 +3,39 @@ use std::collections::HashMap;
 use crate::{AocError, DailyInput};
 
 fn solve(stones: Vec<i64>, times: usize) -> usize {
-    let mut counter = HashMap::new();
-    for stone in &stones {
-        counter.insert(*stone, 1);
-    }
+    let mut histogram = HashMap::from_iter(
+        stones.into_iter().map(|s| (s,1))
+    );
 
     let mut blink = || {
-        let mut new_counter = HashMap::with_capacity(counter.capacity());
+        let mut next_histogram = HashMap::with_capacity(histogram.capacity());
 
-        for (&stone, count) in counter.iter() {
+        for (&stone, count) in histogram.iter() {
             if stone == 0 {
-                *new_counter.entry(1).or_insert(0) += count;
+                *next_histogram.entry(1).or_insert(0) += count;
             } else {
-                let ndigits = stone.checked_ilog10().unwrap_or(0) + 1;
-                if ndigits % 2 == 0 {
+                let num_digits = stone.checked_ilog10().unwrap_or(0) + 1;
+                
+                if num_digits % 2 == 0 {
                     let s = stone.to_string();
                     let split_at = s.len() / 2;
                     let a = s[0..split_at].parse::<i64>().unwrap();
                     let b = s[split_at..].parse::<i64>().unwrap();
 
-                    *new_counter.entry(a).or_insert(0) += count;
-                    *new_counter.entry(b).or_insert(0) += count;
+                    *next_histogram.entry(a).or_insert(0) += count;
+                    *next_histogram.entry(b).or_insert(0) += count;
                 } else {
                     let n = stone * 2024;
-                    *new_counter.entry(n).or_insert(0) += count;
+                    *next_histogram.entry(n).or_insert(0) += count;
                 }
             }
         }
 
-        counter = new_counter;
+        histogram = next_histogram;
     };
 
     (0..times).for_each(|_| blink());
-    let answer: usize = counter.values().sum();
+    let answer: usize = histogram.values().sum();
     answer
 }
 
