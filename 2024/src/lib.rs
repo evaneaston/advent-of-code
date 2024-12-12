@@ -12,11 +12,17 @@ mod coord;
 mod grid;
 mod parse;
 
-// this weirdness allows me to have dayXX/dayXX.rs to make opening source by day name easier
+// I wanted to have my modules be named dayXX.rs, but I didn't want them all in ./src.  If I put them into sub dirs for
+// each day, then by convention, I must name them dayXX/mod.rs.  I could use the attribute #[path=...] to supply an alternate
+// path/file name for each module.  But this doesn't work inside the seq! macro.  
+// This weirdly manufactures the equivalent of dayXX/mod.js that pub uses the sibling dayXX.js from that same directory making
+// it possible to access as dayXX::part1, etc.
 seq!(D in 01..=25 {
-   mod day~D { mod day~D; pub use day~D::*; }
+    #[allow(clippy::module_inception)]
+    mod day~D { mod day~D; pub use day~D::*; }
 });
 
+#[allow(clippy::vec_init_then_push)]
 pub fn get_day_parts() -> Vec<DayPartFn> {
     let mut day_parts = Vec::with_capacity(50);
     seq!(D in 01..=25 {

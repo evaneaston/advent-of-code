@@ -194,6 +194,9 @@ impl Grid {
 
         result
     }
+    pub fn index_all(&self) -> HashMap<u8, Vec<RowCol>> {
+        self.index(self.data.iter().cloned().collect())
+    }
 
     pub fn find(&self, c: u8) -> Option<RowCol> {
         self.data.iter().enumerate().find(|(_,&v)| v == c).map(|(i,_)| self.row_col_for_index(i))
