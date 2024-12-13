@@ -6,8 +6,8 @@ use crate::{
     AocError, DailyInput,
 };
 
-fn get_regions(grid: &Grid) -> Vec<Vec<RowCol>> {
-    let mut regions = Vec::<Vec<RowCol>>::new();
+fn get_regions(grid: &Grid) -> Vec<BTreeSet<RowCol>> {
+    let mut regions = Vec::<BTreeSet<RowCol>>::new();
     let mut location_to_region_index = BTreeMap::<RowCol, usize>::new();
 
     loop {
@@ -24,12 +24,12 @@ fn get_regions(grid: &Grid) -> Vec<Vec<RowCol>> {
         }
 
         if let Some((start_loc, region_value)) = starting_point {
-            let mut region = Vec::<RowCol>::new();
+            let mut region = BTreeSet::<RowCol>::new();
             let mut visited = BTreeSet::<RowCol>::new();
 
             fn fill(
                 grid: &Grid,
-                region: &mut Vec<RowCol>,
+                region: &mut BTreeSet<RowCol>,
                 visited: &mut BTreeSet<RowCol>,
                 loc: RowCol,
                 looking_for: u8,
@@ -37,7 +37,7 @@ fn get_regions(grid: &Grid) -> Vec<Vec<RowCol>> {
                 if visited.contains(&loc) {
                     return;
                 }
-                region.push(loc);
+                region.insert(loc);
                 visited.insert(loc);
 
                 [Direction::N, Direction::E, Direction::S, Direction::W].iter().for_each(|direction| {
@@ -84,99 +84,47 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
                 }
             }
         }
-        //eprintln!("Region {r:?}");
-        //eprintln!("  area={area} perimeter={plot_fence_count}");
         answer += (area * plot_fence_count) as u64;
     }
 
     Ok(answer.to_string())
 }
 
+fn count_sides(region: &BTreeSet<RowCol>, rcs: impl Iterator<Item = RowCol>, direction: Direction) -> usize {
+    let mut count = 0;
+    let mut is_boundary = false;
+    rcs.for_each(|rc| {
+        let new_is_boundary = region.contains(&rc) && !region.contains(&rc.plus(&direction));
+        if new_is_boundary && !is_boundary {
+            count += 1;
+        }
+        is_boundary = new_is_boundary;
+    });
+    count
+}
+
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let grid = Grid::new(&input.get_input_lines()?);
     let mut answer = 0_u64;
 
-    for (_i, region) in get_regions(&grid).iter().enumerate() {
-        // let region_value = grid.get(*region.first().unwrap()).unwrap();
-
-        //eprintln!("Getting sides for region #{i} {}", region_value as char);
+    for region in get_regions(&grid).iter() {
         let area = region.len();
 
-        let min_row = region.iter().map(|rc| rc.row()).min().unwrap();
-        let max_row = region.iter().map(|rc| rc.row()).max().unwrap();
-        let min_col = region.iter().map(|rc| rc.col()).min().unwrap();
-        let max_col = region.iter().map(|rc| rc.col()).max().unwrap();
+        let (west_sides, east_sides) = grid.cols().fold((0, 0), |(w, e), col| {
+            (
+                w + count_sides(region, grid.col_cell_locations_top_down(col), Direction::W),
+                e + count_sides(region, grid.col_cell_locations_top_down(col), Direction::E),
+            )
+        });
 
-        let mut left_sides = 0;
-        let mut right_sides = 0;
-        for col in min_col..=max_col {
-            {
-                let mut is_boundary = false;
-                for row in min_row..=max_row {
-                    let l = rc(row, col);
-                    // let v = grid.get(l).unwrap();
-                    let new_is_boundary = region.contains(&l) && !region.contains(&l.plus(&Direction::W));
-                    // //eprintln!("   At {} left is boundary = {new_is_boundary}", rc(row, col));
-                    if new_is_boundary && !is_boundary {
-                        left_sides += 1;
-                    }
-                    is_boundary = new_is_boundary;
-                }
-            }
+        let (north_sides, south_sides) = grid.rows().fold((0, 0), |(n, s), row| {
+            (
+                n + count_sides(region, grid.row_cell_locations_left_right(row), Direction::N),
+                s + count_sides(region, grid.row_cell_locations_left_right(row), Direction::S),
+            )
+        });
 
-            {
-                let mut is_boundary = false;
-                for row in min_row..=max_row {
-                    let l = rc(row, col);
-                    // let v = grid.get(l).unwrap();
-                    let new_is_boundary = region.contains(&l) && !region.contains(&l.plus(&Direction::E));
-                    // //eprintln!("   At {} right is boundary = {new_is_boundary}", rc(row, col));
-                    if new_is_boundary && !is_boundary {
-                        right_sides += 1;
-                    }
-                    is_boundary = new_is_boundary;
-                }
-            }
-        }
-
-        let mut top_sides = 0;
-        let mut bottom_sides = 0;
-        for row in min_row..=max_row {
-            {
-                let mut is_boundary = false;
-                for col in min_col..=max_col {
-                    let l = rc(row, col);
-                    // let v = grid.get(l).unwrap();
-                    let new_is_boundary = region.contains(&l) && !region.contains(&l.plus(&Direction::N));
-                    // //eprintln!("     At {} top is boundary = {new_is_boundary}", rc(row, col));
-                    if new_is_boundary && !is_boundary {
-                        top_sides += 1;
-                    }
-                    is_boundary = new_is_boundary;
-                }
-            }
-
-            {
-                let mut is_boundary = false;
-                for col in min_col..=max_col {
-                    let l = rc(row, col);
-                    // let v = grid.get(l).unwrap();
-                    let new_is_boundary = region.contains(&l) && !region.contains(&l.plus(&Direction::S));
-                    // //eprintln!("   At {} right is boundary = {new_is_boundary}", rc(row, col));
-                    if new_is_boundary && !is_boundary {
-                        bottom_sides += 1;
-                    }
-                    is_boundary = new_is_boundary;
-                }
-            }
-        }
-        //eprintln!("   left sides={left_sides}");
-        //eprintln!("   rights sides={right_sides}");
-        //eprintln!("   top sides={top_sides}");
-        //eprintln!("   bottom sides={bottom_sides}");
-
-        let sides = left_sides + top_sides + right_sides + bottom_sides;
-        //eprintln!("   area={area} sides={sides}");
+        let sides = west_sides + east_sides + north_sides + south_sides;
 
         answer += (area * sides) as u64;
     }

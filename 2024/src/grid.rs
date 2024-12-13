@@ -1,4 +1,4 @@
-use crate::coord::RowCol;
+use crate::coord::{rc, RowCol};
 use flexi_logger::Level;
 use log::{log, log_enabled};
 use std::{
@@ -199,7 +199,7 @@ impl Grid {
     }
 
     pub fn find(&self, c: u8) -> Option<RowCol> {
-        self.data.iter().enumerate().find(|(_,&v)| v == c).map(|(i,_)| self.row_col_for_index(i))
+        self.data.iter().enumerate().find(|(_, &v)| v == c).map(|(i, _)| self.row_col_for_index(i))
     }
 
     pub fn row_count(&self) -> usize {
@@ -342,9 +342,13 @@ impl Grid {
         hasher.write(&self.data);
     }
 
-    // pub(crate) fn all_coords_by_row(&self) -> impl Iterator<Item = RowCol> {
-    //     (0..self.data.len()).map(|i| self.row_col_for_index(i))
-    // }
+    pub fn row_cell_locations_left_right(&self, row: i64) -> impl Iterator<Item = RowCol> {
+        self.cols().map(move |c| rc(row, c))
+    }
+
+    pub fn col_cell_locations_top_down(&self, col: i64) -> impl Iterator<Item = RowCol> {
+        self.rows().map(move |r| rc(r, col))
+    }
 }
 
 impl Display for Grid {
