@@ -349,6 +349,10 @@ impl Grid {
     pub fn col_cell_locations_top_down(&self, col: i64) -> impl Iterator<Item = RowCol> {
         self.rows().map(move |r| rc(r, col))
     }
+
+    pub fn all_cell_locations_by_row_by_col(&self) -> impl Iterator<Item = RowCol> + '_{
+        self.rows().flat_map(|r| self.cols().map(move |c| rc(r,c)))
+    }
 }
 
 impl Display for Grid {

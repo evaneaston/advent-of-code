@@ -1,28 +1,39 @@
-use crate::{algo::line_intersection, coord::XY, AocError, DailyInput};
+use crate::{algo::line_intersection, AocError, DailyInput};
 use recap::Recap;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize, PartialEq, Recap)]
+#[derive(Debug, Deserialize, PartialEq, Recap, Clone, Copy)]
 #[recap(regex = r#"Button.*:\s+X\+(?P<x>\d+),\s+Y\+(?P<y>\d+)"#)]
 struct Button {
     x: i64,
     y: i64,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Recap)]
+#[derive(Debug, Deserialize, PartialEq, Recap, Clone, Copy)]
 #[recap(regex = r#"Prize.*:\s+X=(?P<x>\d+),\s+Y=(?P<y>\d+)"#)]
 struct Prize {
     x: i64,
     y: i64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Machine {
-    button_a: XY,
-    button_b: XY,
-    prize: XY,
+    button_a: Button,
+    button_b: Button,
+    prize: Prize,
 }
-
+impl Machine {
+    fn solution(&self) -> Option<(i64, i64)> {
+        line_intersection(
+            self.button_a.x as f64,
+            self.button_b.x as f64,
+            (-self.prize.x) as f64,
+            self.button_a.y as f64,
+            self.button_b.y as f64,
+            (-self.prize.y) as f64,
+        )
+    }
+}
 fn parse(input: &DailyInput) -> Result<Vec<Machine>, AocError> {
     let lines = input.get_input_lines()?;
     let mut i = lines.iter();
@@ -36,9 +47,9 @@ fn parse(input: &DailyInput) -> Result<Vec<Machine>, AocError> {
         let button_b: Button = i.next()?.parse::<Button>().unwrap();
         let prize: Prize = i.next()?.parse::<Prize>().unwrap();
         Some(Machine {
-            button_a: XY(button_a.x, button_a.y),
-            button_b: XY(button_b.x, button_b.y),
-            prize: XY(prize.x, prize.y),
+            button_a,
+            button_b,
+            prize,
         })
     }
     let mut machines = Vec::<Machine>::new();
@@ -47,51 +58,29 @@ fn parse(input: &DailyInput) -> Result<Vec<Machine>, AocError> {
     }
     Ok(machines)
 }
+
+fn count_tokens_for_all_machines_with_solutions(machines: &[Machine]) -> usize {
+    machines
+        .iter()
+        .filter_map(|m| m.solution().filter(|(a, b)| *a >= 0 && *b >= 0)) // only soltions with zero or more button presses
+        .map(|(a, b)| (a * 3 + b) as usize)
+        .sum::<usize>()
+}
+
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let machines = parse(&input)?;
-
-    let mut tokens = 0;
-    for m in machines {
-        let solution = line_intersection(
-            (m.button_a.x() as i32).into(),
-            (m.button_b.x() as i32).into(),
-            ((-m.prize.x()) as i32).into(),
-            (m.button_a.y() as i32).into(),
-            (m.button_b.y() as i32).into(),
-            ((-m.prize.y()) as i32).into(),
-        );
-        // eprintln!("{m:?} {solution:?}");
-        if let Some(solution) = solution {
-            tokens += solution.x() * 3 + solution.y();
-        }
-    }
-
+    let tokens = count_tokens_for_all_machines_with_solutions(&machines);
     Ok(tokens.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let machines = parse(&input)?;
-    let machines = machines.iter().map(|m| Machine {
-        button_a: m.button_a,
-        button_b: m.button_b,
-        prize: XY(m.prize.x() + 10000000000000, m.prize.y() + 10000000000000),
-    }).collect::<Vec<_>>();
+    let mut machines = parse(&input)?;
+    machines.iter_mut().for_each(|m| {
+        m.prize.x += 10000000000000;
+        m.prize.y += 10000000000000;
+    });
 
-    let mut tokens = 0;
-    for m in machines {
-        let solution = line_intersection(
-            m.button_a.x() as f64,
-            m.button_b.x() as f64,
-            (-m.prize.x()) as f64,
-            m.button_a.y() as f64,
-            m.button_b.y() as f64,
-            (-m.prize.y()) as f64,
-        );
-        // eprintln!("{m:?} {solution:?}");
-        if let Some(solution) = solution {
-            tokens += solution.x() * 3 + solution.y();
-        }
-    }
+    let tokens = count_tokens_for_all_machines_with_solutions(&machines);
 
     Ok(tokens.to_string())
 }

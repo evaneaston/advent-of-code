@@ -14,7 +14,7 @@ mod parse;
 
 // I wanted to have my modules be named dayXX.rs, but I didn't want them all in ./src.  If I put them into sub dirs for
 // each day, then by convention, I must name them dayXX/mod.rs.  I could use the attribute #[path=...] to supply an alternate
-// path/file name for each module.  But this doesn't work inside the seq! macro.  
+// path/file name for each module.  But this doesn't work inside the seq! macro.
 // This weirdly manufactures the equivalent of dayXX/mod.js that pub uses the sibling dayXX.js from that same directory making
 // it possible to access as dayXX::part1, etc.
 seq!(D in 01..=25 {
@@ -96,27 +96,23 @@ impl DailyInput {
 
 #[derive(Error, Debug)]
 pub enum AocError {
-    #[error(transparent)]
-    Parse {
-        #[from]
-        source: nom::error::Error<&'static str>,
-    },
-    #[error("Parse didn't read all input: {remaining}")]
-    ParseNotComplete { remaining: String },
     #[error("Parse didn't succeed: {message} ")]
     ParseFailed { message: String },
+
+    #[error("Parse didn't read all input: {remaining}")]
+    ParseNotComplete { remaining: String },
+
     #[error(transparent)]
     Log {
         #[from]
         source: flexi_logger::FlexiLoggerError,
     },
+
     #[error(transparent)]
     Io {
         #[from]
         source: std::io::Error,
     },
-    // #[error("Out of bounds")]
-    // OutOfRange(String),
 }
 
 pub fn enable_logging() -> Result<(), AocError> {
