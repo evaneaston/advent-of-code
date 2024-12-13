@@ -96,7 +96,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let grid = Grid::new(&input.get_input_lines()?);
     let mut answer = 0_u64;
 
-    for (i, region) in get_regions(&grid).iter().enumerate() {
+    for (_i, region) in get_regions(&grid).iter().enumerate() {
         // let region_value = grid.get(*region.first().unwrap()).unwrap();
 
         //eprintln!("Getting sides for region #{i} {}", region_value as char);

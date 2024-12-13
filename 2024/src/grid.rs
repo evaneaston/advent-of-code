@@ -341,6 +341,10 @@ impl Grid {
     pub fn hash(&self, hasher: &mut dyn Hasher) {
         hasher.write(&self.data);
     }
+
+    // pub(crate) fn all_coords_by_row(&self) -> impl Iterator<Item = RowCol> {
+    //     (0..self.data.len()).map(|i| self.row_col_for_index(i))
+    // }
 }
 
 impl Display for Grid {

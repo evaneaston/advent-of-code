@@ -1,3 +1,33 @@
+use crate::coord::XY;
+use log::debug;
+use std::collections::HashMap;
+use std::fmt::Display;
+
+// find intersection of two lines as specified by
+//    a1 x + b1 y + c1 = 0
+//    a2 x + b2 y + c2 = 0
+pub(crate) fn line_intersection(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64) -> Option<XY> {
+    let x: f64 = (b1 * c2 - b2 * c1) / (a1 * b2 - a2 * b1);
+    if x.is_nan() {
+        return None;
+    }
+    if x.trunc() != x {
+        return None;
+    }
+    let x: i64 = num::cast(x)?;
+
+    let y: f64 = (c1 * a2 - c2 * a1) / (a1 * b2 - a2 * b1);
+    // eprintln!("{} => {}, {} => {}", x, x.trunc(), y, y.trunc());
+    if y.is_nan() {
+        return None;
+    }
+    if y.trunc() != y {
+        return None;
+    }
+    let y: i64 = num::cast(y)?;
+    Some(XY(x, y))
+}
+
 #[allow(dead_code)]
 pub(crate) fn gcd(a: u64, b: u64) -> u64 {
     if b == 0 {
@@ -20,11 +50,6 @@ pub(crate) fn lcm_of_two(a: u64, b: u64) -> u64 {
 pub(crate) fn lcm_of_multiple(numbers: &[u64]) -> u64 {
     numbers.iter().cloned().fold(1, lcm_of_two)
 }
-
-use crate::coord::XY;
-use log::debug;
-use std::collections::HashMap;
-use std::fmt::Display;
 
 #[allow(dead_code)]
 pub(crate) fn count_distinct<T>(values: &[T]) -> HashMap<&T, usize>
@@ -131,8 +156,27 @@ impl Display for PicksResult {
 
 #[cfg(test)]
 mod tests {
-    use crate::algo::{get_num_interior_points, shoelace_area};
+    use crate::algo::{get_num_interior_points, line_intersection, shoelace_area};
     use crate::coord::{RowCol, XY};
+
+    #[test]
+    fn test_line_intersection() {
+        assert_eq!(
+            line_intersection(
+                94.into(),
+                22.into(),
+                (-8400).into(),
+                34.into(),
+                67.into(),
+                (-5400).into()
+            ),
+            Some(XY(80, 40))
+        );
+        assert_eq!(
+            line_intersection(3.into(), 4.into(), 5.into(), 2.into(), 5.into(), 7.into()),
+            None
+        );
+    }
 
     #[test]
     fn row_col_conversions_test() {
