@@ -15,6 +15,7 @@ pub enum Direction {
     NW,
 }
 impl Direction {
+    #[allow(dead_code)]
     pub fn turn_cw_90(&self) -> Self {
         match self {
             Direction::N => Direction::E,
@@ -25,6 +26,19 @@ impl Direction {
             Direction::SW => Direction::NW,
             Direction::W => Direction::N,
             Direction::NW => Direction::NE,
+        }
+    }
+    #[allow(dead_code)]
+    pub fn turn_ccw_90(&self) -> Self {
+        match self {
+            Direction::N => Direction::W,
+            Direction::NE => Direction::NW,
+            Direction::E => Direction::N,
+            Direction::SE => Direction::NE,
+            Direction::S => Direction::E,
+            Direction::SW => Direction::SE,
+            Direction::W => Direction::S,
+            Direction::NW => Direction::SW,
         }
     }
     #[allow(dead_code)]

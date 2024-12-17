@@ -24,7 +24,7 @@ mod test {
                 number: None,
             })
                 .unwrap(),
-            ""
+            "12"
         );
     }
 

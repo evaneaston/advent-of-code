@@ -1,6 +1,7 @@
 use crate::{AocError, DailyInput};
 
-pub fn part1(_input: DailyInput) -> Result<String, AocError> {
+pub fn part1(input: DailyInput) -> Result<String, AocError> {
+input.get_input_lines()?;
     Ok("".to_string())
 }
 
@@ -16,15 +17,27 @@ mod test {
     const DAY: usize = 15;
 
     #[test]
-    fn test_part1_example() {
+    fn test_part1_example1() {
         assert_eq!(
             part1(DailyInput {
                 day: DAY,
                 input_type: InputType::Example,
-                number: None,
+                number: Some(1),
             })
-                .unwrap(),
-            ""
+            .unwrap(),
+            "10092"
+        );
+    }
+    #[test]
+    fn test_part1_example2() {
+        assert_eq!(
+            part1(DailyInput {
+                day: DAY,
+                input_type: InputType::Example,
+                number: Some(2),
+            })
+            .unwrap(),
+            "2028"
         );
     }
 
@@ -36,7 +49,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             ""
         );
     }
@@ -49,7 +62,7 @@ mod test {
                 input_type: InputType::Example,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             ""
         );
     }
@@ -62,7 +75,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             ""
         );
     }
