@@ -14,6 +14,7 @@ pub enum Direction {
     W,
     NW,
 }
+pub const NSEW: [Direction;4] = [Direction::N, Direction::S , Direction::E, Direction::W];
 impl Direction {
     #[allow(dead_code)]
     pub fn turn_cw_90(&self) -> Self {
@@ -243,3 +244,9 @@ impl From<RowCol> for XY {
         XY(rc.col(), rc.row())
     }
 }
+impl Display for XY {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "X={},Y={}", self.x(), self.y())
+    }
+}
+
