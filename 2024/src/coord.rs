@@ -1,9 +1,9 @@
 use std::fmt::Display;
-use strum_macros::{Display, EnumIter};
+use strum_macros::EnumIter;
 
 pub struct Offset(pub i64, pub i64);
 
-#[derive(EnumIter, Debug, Display, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(EnumIter, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Direction {
     N,
     NE,
@@ -28,6 +28,7 @@ impl Direction {
             Direction::NW => Direction::NE,
         }
     }
+
     #[allow(dead_code)]
     pub fn turn_ccw_90(&self) -> Self {
         match self {
@@ -41,6 +42,7 @@ impl Direction {
             Direction::NW => Direction::SW,
         }
     }
+
     #[allow(dead_code)]
     pub fn turn_180(&self) -> Self {
         match self {
@@ -53,6 +55,75 @@ impl Direction {
             Direction::W => Direction::E,
             Direction::NW => Direction::SE,
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn cw_turn_difference(&self, other: Direction) -> u64 {
+        let mut d = *self;
+        let mut count = 0;
+        while d != other {
+            d = d.turn_cw_90();
+            count += 1;
+        }
+        count
+    }
+
+    #[allow(dead_code)]
+    pub fn ccw_turn_difference(&self, other: Direction) -> u64 {
+        let mut d = *self;
+        let mut count = 0;
+        while d != other {
+            d = d.turn_ccw_90();
+            count += 1;
+        }
+        count
+    }
+}
+impl From<Direction> for char {
+    fn from(val: Direction) -> Self {
+        match val {
+            Direction::N => '^',
+            Direction::NE => todo!(),
+            Direction::E => '>',
+            Direction::SE => todo!(),
+            Direction::S => 'v',
+            Direction::SW => todo!(),
+            Direction::W => '<',
+            Direction::NW => todo!(),
+        }
+    }
+}
+impl From<Direction> for u8 {
+    fn from(val: Direction) -> Self {
+        let c: char = val.into();
+        c as u8
+    }
+}
+
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let c: char = (*self).into();
+        write!(f, "{}", c)
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::Direction;
+
+    #[test]
+    fn test_count_ccw_turns() {
+        assert_eq!(Direction::N.ccw_turn_difference(Direction::N), 0);
+        assert_eq!(Direction::N.ccw_turn_difference(Direction::W), 1);
+        assert_eq!(Direction::N.ccw_turn_difference(Direction::S), 2);
+        assert_eq!(Direction::N.ccw_turn_difference(Direction::E), 3);
+    }
+
+    #[test]
+    fn test_count_cw_turns() {
+        assert_eq!(Direction::N.cw_turn_difference(Direction::N), 0);
+        assert_eq!(Direction::N.cw_turn_difference(Direction::W), 3);
+        assert_eq!(Direction::N.cw_turn_difference(Direction::S), 2);
+        assert_eq!(Direction::N.cw_turn_difference(Direction::E), 1);
     }
 }
 
@@ -99,6 +170,9 @@ impl RowCol {
     }
     pub fn plus(&self, direction: &Direction) -> RowCol {
         self.plus_n(direction, 1)
+    }
+    pub fn minus(&self, direction: &Direction) -> RowCol {
+        self.plus_n(&direction.turn_180(), 1)
     }
     pub fn plus_n(&self, direction: &Direction, n: i64) -> RowCol {
         match direction {

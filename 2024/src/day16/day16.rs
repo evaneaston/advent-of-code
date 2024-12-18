@@ -1,5 +1,6 @@
 use std::{
-    collections::{BTreeSet, HashMap, HashSet},
+    cmp::Reverse,
+    collections::{BTreeSet, BinaryHeap, HashMap, VecDeque},
     fmt::Display,
 };
 
@@ -9,206 +10,452 @@ use crate::{
     AocError, DailyInput,
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
+struct RowColDir(RowCol, Direction);
+impl Display for RowColDir {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}{}", self.0, self.1)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
+struct HeapEntry(u64, RowColDir);
+
+#[derive(Debug, Clone, Eq)]
+struct HeapEntryPart2(u64, RowColDir, BTreeSet<RowCol>);
+impl PartialEq for HeapEntryPart2 {
+    fn eq(&self, other: &HeapEntryPart2) -> bool {
+        self.0 == other.0 && self.1 == other.1
+    }
+}
+#[allow(clippy::non_canonical_partial_ord_impl)]
+impl ::core::cmp::PartialOrd for HeapEntryPart2 {
+    #[inline]
+    fn partial_cmp(&self, other: &HeapEntryPart2) -> ::core::option::Option<::core::cmp::Ordering> {
+        match ::core::cmp::PartialOrd::partial_cmp(&self.0, &other.0) {
+            ::core::option::Option::Some(::core::cmp::Ordering::Equal) => {
+                ::core::cmp::PartialOrd::partial_cmp(&self.1, &other.1)
+            }
+            cmp => cmp,
+        }
+    }
+}
+impl ::core::cmp::Ord for HeapEntryPart2 {
+    #[inline]
+    fn cmp(&self, other: &HeapEntryPart2) -> ::core::cmp::Ordering {
+        match ::core::cmp::Ord::cmp(&self.0, &other.0) {
+            ::core::cmp::Ordering::Equal => ::core::cmp::Ord::cmp(&self.1, &other.1),
+            cmp => cmp,
+        }
+    }
+}
+
 struct Sim {
     grid: Grid,
-    costs: HashMap<RowCol, Cost>,
+
+    #[allow(dead_code)]
+    start: RowCol,
+    start_rcd: RowColDir,
+    end: RowCol,
+    costs: HashMap<RowColDir, u64>,
 }
-#[derive(Debug, Clone, Copy)]
-struct Cost {
-    cost: u64,
-    at_direction: Direction,
-}
-impl Display for Cost {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}@{}", self.cost, self.at_direction)
-    }
-}
-fn count_cw_turns(current: Direction, target: Direction) -> u64 {
-    let mut d = current;
-    let mut count = 0;
-    while d != target {
-        d = d.turn_cw_90();
-        count += 1;
-    }
-    count
-}
-fn count_ccw_turns(current: Direction, target: Direction) -> u64 {
-    let mut d = current;
-    let mut count = 0;
-    while d != target {
-        d = d.turn_ccw_90();
-        count += 1;
-    }
-    count
-}
+
 impl Sim {
-    fn run(&mut self) -> u64 {
-        // eprintln!("run");
-        let start = self.grid.find(b'S').unwrap();
-        let end = self.grid.find(b'E').unwrap();
-
-        eprintln!("Start {start} End {end}");
-
-        self.grid.set(start, b'.');
-        self.costs.insert(
-            start,
-            Cost {
-                cost: 0,
-                at_direction: Direction::E,
-            },
-        );
-        self.search(start, Direction::E, end);
-
-        self.costs.get(&end).unwrap().cost
-    }
-
-    fn search(&mut self, location: RowCol, direction: Direction, end: RowCol) {
-        // eprintln!("search({location}, {direction}, {depth})");
-        let candidates: Vec<(RowCol, Direction, u64)> = [Direction::N, Direction::S, Direction::E, Direction::W]
-            .iter()
-            .filter_map(|candidate_direction| {
-                let candidate_location = location.plus(candidate_direction);
-
-                match self.grid.get(candidate_location) {
-                    Some(b'#') => None,
-                    Some(b'.') | Some(b'E') => {
-                        let count_cw_turns = count_cw_turns(direction, *candidate_direction);
-                        let count_ccw_turns = count_ccw_turns(direction, *candidate_direction);
-                        Some((
-                            candidate_location,
-                            *candidate_direction,
-                            1 + (1000 * count_ccw_turns.min(count_cw_turns)),
-                        ))
-                    }
-                    Some(other) => panic!("Unexpected value {} at location {}", other as char, candidate_location),
-                    None => panic!("Shouldn't be able to walk off the edge of the world."),
-                }
-            })
-            .collect::<Vec<_>>();
-        let current_cost = *self.costs.get(&location).unwrap();
-
-        // eprintln!(
-        //     "At {} facing {} with current cost of {}",
-        //     location, direction, current_cost
-        // );
-
-        for candidate in candidates {
+    fn add_for_future_exploration(
+        &mut self,
+        heap: &mut BinaryHeap<Reverse<HeapEntry>>,
+        cost: u64,
+        rcd: RowColDir,
+    ) -> bool {
+        let existing_cost = *self.costs.get(&rcd).unwrap();
+        if existing_cost > cost {
+            self.costs.insert(rcd, cost);
             // eprintln!(
-            //     "  Considering going {} to {} for an added cost of {}",
-            //     candidate.1, candidate.0, candidate.2
+            //     "Existing cost for {rcd:?} of {existing_cost} is higher than {cost}, queuing for future exploration"
             // );
-            // };
-
-            let proceed = match self.costs.get(&candidate.0) {
-                Some(existing_minimum_cost) => {
-                    let new_cost = current_cost.cost + candidate.2;
-                    let new_cost_at_existing_min_direction = new_cost
-                        + count_ccw_turns(candidate.1, existing_minimum_cost.at_direction)
-                            .min(count_cw_turns(candidate.1, existing_minimum_cost.at_direction))
-                            * 1000;
-
-                    if new_cost_at_existing_min_direction < existing_minimum_cost.cost {
-                        if candidate.0 == end {
-                            eprintln!(
-                                "   replacing {} min cost of {} with new min cost of {} at direction {}",
-                                candidate.0, existing_minimum_cost, new_cost, candidate.1
-                            );
-                        }
-                        // eprintln!(
-                        //     "       Existing cost is {}.  We can do it for less {}.",
-                        //     *existing_minimum_cost,
-                        //     (current_cost + candidate.2),
-                        // );
-                        true
-                    } else {
-                        // eprintln!("    Can already get there with a lower cost.");
-                        false
-                    }
-                }
-                None => {
-                    // eprintln!(
-                    //     "    No cost has been registered for {}.  Will go check it out.",
-                    //     candidate.0,
-                    // );
-                    true
-                }
-            };
-
-            if proceed {
-                self.costs.insert(
-                    candidate.0,
-                    Cost {
-                        cost: current_cost.cost + candidate.2,
-                        at_direction: candidate.1,
-                    },
-                );
-                self.search(candidate.0, candidate.1, end);
-            }
-        }
-    }
-
-    fn n(&self, location: RowCol, chain: &mut Vec<RowCol>, solutions: &mut BTreeSet<RowCol>) {
-        let current_cost = self.costs.get(&location).unwrap();
-        if current_cost.cost == 0 {
-            for c in chain {
-                solutions.insert(*c);
-            }
-            solutions.insert(location);
+            heap.push(Reverse(HeapEntry(cost, rcd)));
+            true
         } else {
-            for direction in [Direction::N, Direction::E, Direction::S, Direction::W] {
-                let next_location = location.plus(&direction);
-                if let Some(next_value) = self.grid.get(next_location) {
-                    if next_value == b'.' {
-                        let next_cost = self.costs.get(&next_location).unwrap();
-                        if next_cost.cost < current_cost.cost {
-                            chain.push(next_location);
-                            self.n(next_location, chain, solutions);
-                            chain.pop();
-                        }
-                    }
-                }
-            }
+            // eprintln!("{rcd:?} with cost {existing_cost} can already be reached at a lower cost than {cost}, will not explore futher ");
+            false
         }
     }
 
-    fn search_back(&self) -> BTreeSet<RowCol> {
-        let end = self.grid.find(b'E').unwrap();
+    fn run(&mut self) -> u64 {
+        self.grid.all_cell_locations_by_row_by_col().for_each(|loc| {
+            [Direction::N, Direction::S, Direction::E, Direction::W].iter().for_each(|dir| {
+                self.costs.insert(RowColDir(loc, *dir), u64::MAX);
+            });
+        });
 
-        let mut chain = Vec::new();
-        chain.push(end);
+        let mut heap = BinaryHeap::new();
+        self.costs.insert(self.start_rcd, 0);
+        heap.push(Reverse(HeapEntry(0, self.start_rcd)));
+
+        loop {
+            let entry = match heap.pop() {
+                None => break,
+                Some(e) => e,
+            };
+            // eprintln!("Checking {} @ {}>{}", entry.0 .0, entry.0 .1 .0, entry.0 .1 .1);
+
+            let cost = entry.0 .0;
+            let row_col_dir = entry.0 .1;
+
+            // if !self.add_for_future_exploration(&mut heap, cost, row_col_dir) {
+            //     continue;
+            // }
+
+            let existing_cost = *self.costs.get(&row_col_dir).unwrap();
+            if existing_cost < cost {
+                continue;
+            }
+
+            if row_col_dir.0 == self.end {
+                // eprintln!("found end, not need to continue moving from here");
+                continue;
+            }
+
+            // forward step
+            let next_rcd = RowColDir(row_col_dir.0.plus(&row_col_dir.1), row_col_dir.1);
+            match self.grid.get(next_rcd.0) {
+                Some(b'.') | Some(b'E') => {
+                    self.add_for_future_exploration(&mut heap, cost + 1, next_rcd);
+                }
+                _ => {}
+            }
+
+            // ccw
+            self.add_for_future_exploration(
+                &mut heap,
+                cost + 1000,
+                RowColDir(row_col_dir.0, row_col_dir.1.turn_ccw_90()),
+            );
+
+            // cw
+            self.add_for_future_exploration(
+                &mut heap,
+                cost + 1000,
+                RowColDir(row_col_dir.0, row_col_dir.1.turn_cw_90()),
+            );
+        }
+
+        self.min_cost(self.end)
+    }
+
+    fn min_cost(&self, location: RowCol) -> u64 {
+        [Direction::N, Direction::S, Direction::E, Direction::W]
+            .iter()
+            .map(|d| *self.costs.get(&RowColDir(location, *d)).unwrap())
+            .min()
+            .unwrap()
+    }
+
+    // #[allow(dead_code)]
+    // fn n0(
+    //     &self,
+    //     start_rcd: RowColDir,
+    //     current_rcd: RowColDir,
+    //     chain: &mut BTreeSet<RowColDir>,
+    //     solutions: &mut BTreeSet<RowCol>,
+    // ) {
+    //     eprintln!("Checking {}", current_rcd);
+    //     if start_rcd == current_rcd {
+    //         eprintln!("Found start {current_rcd}");
+
+    //         for c in chain.iter() {
+    //             solutions.insert(c.0);
+    //         }
+    //         return;
+    //     }
+
+    //     let current_cost = self.costs.get(&current_rcd).unwrap();
+
+    //     // straight in
+    //     {
+    //         let prev_rcd = RowColDir(current_rcd.0.minus(&current_rcd.1), current_rcd.1);
+
+    //         if !chain.contains(&prev_rcd) {
+    //             if let Some(prev_value) = self.grid.get(prev_rcd.0) {
+    //                 if prev_value == b'.' || prev_value == b'S' {
+    //                     eprint!("  {prev_rcd} ({}) -?-> {current_rcd}", prev_value as char);
+
+    //                     let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+    //                     if (prev_cost + 1) == *current_cost {
+    //                         eprintln!("  check {prev_cost} + 1 = {current_cost}");
+    //                         chain.insert(prev_rcd);
+    //                         self.n(start_rcd, prev_rcd, chain, solutions);
+    //                         chain.remove(&prev_rcd);
+    //                     } else {
+    //                         eprintln!(" NO - cost isn't 1");
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // from ccw
+    //     {
+    //         let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_ccw_90());
+    //         if !chain.contains(&prev_rcd) {
+    //             eprint!("  {prev_rcd} -?-> {current_rcd}");
+    //             let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+    //             if (prev_cost + 1000) == *current_cost {
+    //                 eprintln!("  check {prev_cost} + 1000 = {current_cost}");
+    //                 chain.insert(prev_rcd);
+    //                 self.n(start_rcd, prev_rcd, chain, solutions);
+    //                 chain.remove(&prev_rcd);
+    //             } else {
+    //                 eprintln!(" NO - cost isn't 1000");
+    //             }
+    //         }
+    //     }
+
+    //     // from cw
+    //     {
+    //         let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_cw_90());
+    //         if !chain.contains(&prev_rcd) {
+    //             eprint!("  {prev_rcd} -?-> {current_rcd}");
+    //             let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+    //             if (prev_cost + 1000) == *current_cost {
+    //                 eprintln!("  check {prev_cost} + 1000 = {current_cost}");
+    //                 chain.insert(prev_rcd);
+    //                 self.n(start_rcd, prev_rcd, chain, solutions);
+    //                 chain.remove(&prev_rcd);
+    //             } else {
+    //                 eprintln!(" NO - cost isn't 1000");
+    //             }
+    //         }
+    //     }
+    // }
+
+    fn draw(&self, chain: &BTreeSet<RowColDir>) {
+        let mut grid = self.grid.clone();
+        for rcd in chain {
+            grid.set(rcd.0, rcd.1.into());
+        }
+        eprintln!("{grid}");
+    }
+
+    fn n(
+        &self,
+        start: RowColDir,
+        current_rcd: RowColDir,
+        chain: &mut BTreeSet<RowColDir>,
+        solutions: &mut BTreeSet<RowCol>,
+    ) {
+        eprintln!("Checking {}", current_rcd);
+        if start == current_rcd {
+            eprintln!("Found start {current_rcd}");
+
+            for c in chain.iter() {
+                solutions.insert(c.0);
+            }
+
+            self.draw(chain);
+
+            return;
+        }
+
+        let current_cost = self.costs.get(&current_rcd).unwrap();
+
+        let mut recurses = VecDeque::<RowColDir>::new();
+        // straight in
+        {
+            let prev_rcd = RowColDir(current_rcd.0.minus(&current_rcd.1), current_rcd.1);
+
+            eprint!("  {prev_rcd} -?-> {current_rcd}");
+            if !chain.contains(&prev_rcd) {
+                if let Some(prev_value) = self.grid.get(prev_rcd.0) {
+                    if prev_value == b'.' || prev_value == b'S' {
+                        let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+                        if *current_cost >= 1 && (current_cost - 1) == prev_cost {
+                            eprintln!("  check - {prev_cost} + 1 = {current_cost}");
+                            recurses.push_back(prev_rcd);
+                        } else {
+                            eprintln!("  NO - {prev_cost} + 1 != {current_cost}");
+                        }
+                    } else {
+                        eprintln!("  NO - invalid value {}", prev_value as char);
+                    }
+                } else {
+                    eprintln!("  NO - not on grid");
+                }
+            }
+        }
+
+        // from ccw
+        {
+            let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_ccw_90());
+            if !chain.contains(&prev_rcd) {
+                eprint!("  {prev_rcd} -?-> {current_rcd}");
+                let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+                if *current_cost >= 1000 && (current_cost - 1000) == prev_cost {
+                    eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
+                    recurses.push_back(prev_rcd);
+                } else {
+                    eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
+                }
+            }
+        }
+
+        // from cw
+        {
+            let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_cw_90());
+            if !chain.contains(&prev_rcd) {
+                eprint!("  {prev_rcd} -?-> {current_rcd}");
+                let prev_cost = *self.costs.get(&prev_rcd).unwrap();
+                if *current_cost >= 1000 && (current_cost - 1000) == prev_cost {
+                    eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
+                    recurses.push_back(prev_rcd);
+                } else {
+                    eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
+                }
+            }
+        }
+
+        while let Some(prev_rcd) = recurses.pop_front() {
+            chain.insert(prev_rcd);
+            self.n(start, prev_rcd, chain, solutions);
+            chain.remove(&prev_rcd);
+        }
+    }
+
+    fn search_back(&self, answer: u64) -> BTreeSet<RowCol> {
+        let end = self.grid.find(b'E').unwrap();
+        let start = self.grid.find(b'S').unwrap();
+
+        let mut chain = BTreeSet::new();
         let mut solutions = BTreeSet::<RowCol>::new();
-        self.n(end, &mut chain, &mut solutions);
+
+        for direction in [Direction::N, Direction::S, Direction::E, Direction::W] {
+            let end_rcd = RowColDir(end, direction);
+            if *self.costs.get(&end_rcd).unwrap() == answer {
+                chain.insert(end_rcd);
+                self.n(RowColDir(start, Direction::E), end_rcd, &mut chain, &mut solutions);
+                chain.remove(&end_rcd);
+            }
+        }
         solutions
     }
+
+    fn new(grid: Grid) -> Self {
+        let start = grid.find(b'S').unwrap();
+        Self {
+            start_rcd: RowColDir(start, Direction::E),
+            start,
+            end: grid.find(b'E').unwrap(),
+            grid,
+            costs: HashMap::new(),
+        }
+    }
+
+    // fn run2(&mut self) -> BTreeSet<RowCol> {
+    //     let start = self.grid.find(b'S').unwrap();
+    //     let end = self.grid.find(b'E').unwrap();
+    //     // eprintln!("Start {start} End {end}");
+
+    //     let mut solutions = BTreeSet::<RowCol>::new();
+
+    //     self.grid.all_cell_locations_by_row_by_col().for_each(|loc| {
+    //         [Direction::N, Direction::S, Direction::E, Direction::W].iter().for_each(|dir| {
+    //             self.costs.insert(RowColDir(loc, *dir), u64::MAX);
+    //         });
+    //     });
+
+    //     let mut heap = BinaryHeap::new();
+    //     heap.push(Reverse(HeapEntryPart2(
+    //         0,
+    //         RowColDir(start, Direction::E),
+    //         BTreeSet::new(),
+    //     )));
+
+    //     loop {
+    //         // eprintln!("Heapsize={}", heap.len());
+
+    //         let entry = match heap.pop() {
+    //             None => break,
+    //             Some(e) => e,
+    //         };
+    //         // eprintln!("Checking {} @ {}>{}", entry.0 .0, entry.0 .1 .0, entry.0 .1 .1);
+
+    //         let cost = entry.0 .0;
+    //         let row_col_dir = entry.0 .1;
+    //         let path = &entry.0 .2;
+
+    //         // if !self.add_for_future_exploration(&mut heap, cost, row_col_dir) {
+    //         //     continue;
+    //         // }
+
+    //         let existing_cost = *self.costs.get(&row_col_dir).unwrap();
+    //         if existing_cost < cost {
+    //             continue;
+    //         }
+
+    //         if row_col_dir.0 == end {
+    //             path.iter().for_each(|rc| {
+    //                 solutions.insert(*rc);
+    //             });
+    //             // eprintln!("found end, not need to continue moving from here");
+    //             continue;
+    //         }
+
+    //         // forward step
+    //         let next_rcd = RowColDir(row_col_dir.0.plus(&row_col_dir.1), row_col_dir.1);
+    //         match self.grid.get(next_rcd.0) {
+    //             Some(b'.') | Some(b'E') => {
+    //                 self.add_for_future_exploration2(&mut heap, cost + 1, next_rcd, path);
+    //             }
+    //             _ => {}
+    //         }
+
+    //         // ccw
+    //         self.add_for_future_exploration2(
+    //             &mut heap,
+    //             cost + 1000,
+    //             RowColDir(row_col_dir.0, row_col_dir.1.turn_ccw_90()),
+    //             path,
+    //         );
+
+    //         // cw
+    //         self.add_for_future_exploration2(
+    //             &mut heap,
+    //             cost + 1000,
+    //             RowColDir(row_col_dir.0, row_col_dir.1.turn_cw_90()),
+    //             path,
+    //         );
+    //     }
+
+    //     solutions
+    // }
+
+    // fn add_for_future_exploration2(
+    //     &mut self,
+    //     heap: &mut BinaryHeap<Reverse<HeapEntryPart2>>,
+    //     cost: u64,
+    //     rcd: RowColDir,
+    //     current_path: &BTreeSet<RowCol>,
+    // ) -> bool {
+    //     let existing_cost = *self.costs.get(&rcd).unwrap();
+    //     if existing_cost > cost {
+    //         self.costs.insert(rcd, cost);
+    //         let mut path = current_path.clone();
+    //         path.insert(rcd.0);
+    //         heap.push(Reverse(HeapEntryPart2(cost, rcd, path)));
+    //         true
+    //     } else {
+    //         // eprintln!("{rcd:?} with cost {existing_cost} can already be reached at a lower cost than {cost}, will not explore futher ");
+    //         false
+    //     }
+    // }
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
     let grid = Grid::new(&input.get_input_lines()?);
 
-    let mut sim = Sim {
-        grid,
-        costs: HashMap::new(),
-    };
+    let mut sim = Sim::new(grid);
 
     let answer = sim.run();
-    sim.grid.all_cell_locations_by_row_by_col().for_each(|rc| {
-        let v = sim.grid.get(rc).unwrap();
-        if (v == b'.' || v == b'E') && sim.costs.get(&rc).is_none() {
-            panic!("Location {rc} doesn't have a cost but should.");
-        }
-    });
-
-    eprintln!("==================================================");
-    for r in sim.grid.rows() {
-        for c in sim.grid.cols() {
-            match sim.costs.get(&RowCol(r, c)) {
-                Some(cost) => eprint!("{},", cost.cost),
-                None => eprint!(","),
-            }
-        }
-        eprintln!();
-    }
-    eprintln!("==================================================");
 
     Ok(answer.to_string())
 }
@@ -216,16 +463,17 @@ pub fn part1(input: DailyInput) -> Result<String, AocError> {
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
     let grid = Grid::new(&input.get_input_lines()?);
 
-    let mut sim = Sim {
-        grid,
-        costs: HashMap::new(),
-    };
+    let mut sim = Sim::new(grid);
 
-    sim.run();
-    let answers = sim.search_back();
+    let answer = sim.run();
+    let answers = sim.search_back(answer);
+
     answers.iter().for_each(|rc| {
-        eprintln!("{rc}");
+        sim.grid.set(*rc, b'O');
     });
+
+    eprintln!("{}", sim.grid);
+
     let answer = answers.len();
 
     Ok(answer.to_string())
@@ -233,26 +481,10 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
 
 #[cfg(test)]
 mod test {
-    use super::{count_ccw_turns, count_cw_turns, part1, part2};
-    use crate::{coord::Direction, DailyInput, InputType};
+    use super::{part1, part2};
+    use crate::{DailyInput, InputType};
 
     const DAY: usize = 16;
-
-    #[test]
-    fn test_count_ccw_turns() {
-        assert_eq!(count_ccw_turns(Direction::N, Direction::N), 0);
-        assert_eq!(count_ccw_turns(Direction::N, Direction::W), 1);
-        assert_eq!(count_ccw_turns(Direction::N, Direction::S), 2);
-        assert_eq!(count_ccw_turns(Direction::N, Direction::E), 3);
-    }
-
-    #[test]
-    fn test_count_cw_turns() {
-        assert_eq!(count_cw_turns(Direction::N, Direction::N), 0);
-        assert_eq!(count_cw_turns(Direction::N, Direction::W), 3);
-        assert_eq!(count_cw_turns(Direction::N, Direction::S), 2);
-        assert_eq!(count_cw_turns(Direction::N, Direction::E), 1);
-    }
 
     #[test]
     fn test_part1_example1() {
@@ -325,10 +557,10 @@ mod test {
             part2(DailyInput {
                 day: DAY,
                 input_type: InputType::Challenge,
-                number: Some(2),
+                number: None,
             })
             .unwrap(),
-            ""
+            "590"
         );
     }
 }
