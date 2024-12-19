@@ -4,6 +4,7 @@ use std::{
 };
 
 use flexi_logger::{Logger, LoggerHandle};
+use regex::Captures;
 use seq_macro::seq;
 use thiserror::Error;
 
@@ -117,4 +118,8 @@ pub enum AocError {
 
 pub fn enable_logging() -> Result<LoggerHandle, AocError> {
     Logger::try_with_env_or_str("info")?.log_to_stdout().start().map_err(|e| e.into())
+}
+
+pub fn as_i64(captures: &Captures, index: usize) -> i64 {
+    captures.get(index).unwrap().as_str().parse::<i64>().unwrap()
 }

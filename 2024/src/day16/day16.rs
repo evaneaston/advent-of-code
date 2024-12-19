@@ -205,7 +205,7 @@ impl Sim {
         for rcd in chain {
             grid.set(rcd.0, rcd.1.into());
         }
-        eprintln!("{grid}");
+        // eprintln!("{grid}");
     }
 
     fn n(
@@ -215,9 +215,9 @@ impl Sim {
         chain: &mut BTreeSet<RowColDir>,
         solutions: &mut BTreeSet<RowCol>,
     ) {
-        eprintln!("Checking {}", current_rcd);
+        // eprintln!("Checking {}", current_rcd);
         if start == current_rcd {
-            eprintln!("Found start {current_rcd}");
+            // eprintln!("Found start {current_rcd}");
 
             for c in chain.iter() {
                 solutions.insert(c.0);
@@ -235,22 +235,22 @@ impl Sim {
         {
             let prev_rcd = RowColDir(current_rcd.0.minus(&current_rcd.1), current_rcd.1);
 
-            eprint!("  {prev_rcd} -?-> {current_rcd}");
+            // eprint!("  {prev_rcd} -?-> {current_rcd}");
             if !chain.contains(&prev_rcd) {
                 if let Some(prev_value) = self.grid.get(prev_rcd.0) {
                     if prev_value == b'.' || prev_value == b'S' {
                         let prev_cost = *self.costs.get(&prev_rcd).unwrap();
                         if *current_cost >= 1 && (current_cost - 1) == prev_cost {
-                            eprintln!("  check - {prev_cost} + 1 = {current_cost}");
+                            // eprintln!("  check - {prev_cost} + 1 = {current_cost}");
                             recurses.push_back(prev_rcd);
                         } else {
-                            eprintln!("  NO - {prev_cost} + 1 != {current_cost}");
+                            // eprintln!("  NO - {prev_cost} + 1 != {current_cost}");
                         }
                     } else {
-                        eprintln!("  NO - invalid value {}", prev_value as char);
+                        // eprintln!("  NO - invalid value {}", prev_value as char);
                     }
                 } else {
-                    eprintln!("  NO - not on grid");
+                    // eprintln!("  NO - not on grid");
                 }
             }
         }
@@ -259,13 +259,13 @@ impl Sim {
         {
             let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_ccw_90());
             if !chain.contains(&prev_rcd) {
-                eprint!("  {prev_rcd} -?-> {current_rcd}");
+                // eprint!("  {prev_rcd} -?-> {current_rcd}");
                 let prev_cost = *self.costs.get(&prev_rcd).unwrap();
                 if *current_cost >= 1000 && (current_cost - 1000) == prev_cost {
-                    eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
+                    // eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
                     recurses.push_back(prev_rcd);
                 } else {
-                    eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
+                    // eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
                 }
             }
         }
@@ -274,13 +274,13 @@ impl Sim {
         {
             let prev_rcd = RowColDir(current_rcd.0, current_rcd.1.turn_cw_90());
             if !chain.contains(&prev_rcd) {
-                eprint!("  {prev_rcd} -?-> {current_rcd}");
+                // eprint!("  {prev_rcd} -?-> {current_rcd}");
                 let prev_cost = *self.costs.get(&prev_rcd).unwrap();
                 if *current_cost >= 1000 && (current_cost - 1000) == prev_cost {
-                    eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
+                    // eprintln!("  check - {prev_cost} + 1000 = {current_cost}");
                     recurses.push_back(prev_rcd);
                 } else {
-                    eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
+                    // eprintln!("  NO - {prev_cost} + 1000 != {current_cost}");
                 }
             }
         }
@@ -344,7 +344,7 @@ pub fn part2(input: DailyInput) -> Result<String, AocError> {
         sim.grid.set(*rc, b'O');
     });
 
-    eprintln!("{}", sim.grid);
+    // eprintln!("{}", sim.grid);
 
     let answer = answers.len();
 

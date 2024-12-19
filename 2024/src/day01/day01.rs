@@ -1,56 +1,48 @@
-use crate::{AocError, DailyInput};
+use crate::{as_i64, AocError, DailyInput};
 
 use std::collections::HashMap;
 
-use recap::Recap;
-use lazy_static::lazy_static;
 use regex::Regex;
-use serde::Deserialize;
 
-lazy_static! {
-    static ref RE: Regex =
-        Regex::new(r"(\d+)\s+(\d+)").unwrap();
-    }
-
-#[derive(Debug, Deserialize, PartialEq, Recap)]
-#[recap(regex = r#"(?P<left>\d+)\s+(?P<right>\d+)"#)]
-struct Row {
-    left: i64,
-    right: i64,
+fn parse(input: DailyInput) -> Result<(Vec<i64>, Vec<i64>), AocError> {
+    let re = Regex::new(r"^(\d+)\s+(\d+)").unwrap();
+    Ok(input
+        .get_input_lines()?
+        .iter()
+        .map(|l| {
+            let c = re.captures(l).unwrap();
+            (as_i64(&c, 1), as_i64(&c, 2))
+        })
+        .map(|r| (r.0, r.1))
+        .unzip())
 }
 
 pub fn part1(input: DailyInput) -> Result<String, AocError> {
-    let (mut left, mut right): (Vec<_>, Vec<_>) = input.get_input_lines()?.iter()
-        .map(|l| l.parse::<Row>().unwrap())
-        .map(|r| (r.left, r.right))
-        .unzip();
+    let (mut left, mut right) = parse(input)?;
 
     left.sort();
     right.sort();
 
-    let sum: i64 = left.iter().zip(right.iter()).map(|(l, r)| {
-        (l - r).abs()
-    }).sum();
+    let sum: i64 = left.iter().zip(right.iter()).map(|(l, r)| (l - r).abs()).sum();
 
     Ok(sum.to_string())
 }
 
 pub fn part2(input: DailyInput) -> Result<String, AocError> {
-    let (left, right): (Vec<_>, Vec<_>) = input.get_input_lines()?.iter().map(|l| RE.captures(l).unwrap()).map(|c| {
-        (c.get(1).unwrap().as_str().parse::<i64>().unwrap(), c.get(2).unwrap().as_str().parse::<i64>().unwrap())
-    }).unzip();
+    let (left, right) = parse(input)?;
 
     let right_counts = right.into_iter().fold(HashMap::new(), |mut map, num| {
         *map.entry(num).or_insert(0) += 1;
         map
     });
 
-    let sum: i64 = left.iter().map(|l| {
-        match right_counts.get(l) {
+    let sum: i64 = left
+        .iter()
+        .map(|l| match right_counts.get(l) {
             Some(c) => l * c,
             None => 0,
-        }
-    }).sum();
+        })
+        .sum();
 
     Ok(sum.to_string())
 }
@@ -70,7 +62,7 @@ mod test {
                 input_type: InputType::Example,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             "11"
         );
     }
@@ -83,7 +75,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             "2000468"
         );
     }
@@ -96,7 +88,7 @@ mod test {
                 input_type: InputType::Example,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             "31"
         );
     }
@@ -109,7 +101,7 @@ mod test {
                 input_type: InputType::Challenge,
                 number: None,
             })
-                .unwrap(),
+            .unwrap(),
             "18567089"
         );
     }
