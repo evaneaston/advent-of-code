@@ -1,6 +1,7 @@
 use std::fmt::Display;
 use strum_macros::EnumIter;
 
+#[derive(Debug, Clone,Copy)]
 pub struct Offset(pub i64, pub i64);
 
 #[derive(EnumIter, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
